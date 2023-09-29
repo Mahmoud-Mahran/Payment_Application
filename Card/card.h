@@ -1,30 +1,39 @@
 #pragma once
 / ###########################################################################################################/
-/* Author :                                 Mohamed Yehia El-Greatly                                         */
-/* File Name :                                     terminal.h                                                */
+/* Author :                                 Mohamed Mansour												     */
+/* File Name :                                     Card.h											         */
 /* Version :                                        V1.0.0                                                   */
 /* Date :                                         28 Sep 2023                                                */
 /###########################################################################################################/
 /* @Description  :                                                                                           */
-/*                Terminal is an interface between the user and our software application,                    */
-/*                consists of a hardware part (KayPad) and a software module.                                */
+/*                Card id used to get the card data and ensure that there is,                                */
+/*                no wrong data entered such name, expired date, pan									     */
 /*                                                                                                           */
-/* Terminal main features  :   - Verify the card data and the user inputs.                                   */
-/*                             - Ask for the amount and PIN number.                                          */
-/*                             - Verify the maximum amount and the PIN number.                               */
-/*                             - Send card data and the transaction amount to the bank server.               */
+/* Card main features  :       - Ask for Card data.                                                          */
+/*                             - Test the input data.                                                        */
+/*                             - Store the input data									                     */
 /###########################################################################################################/
 /*@Features  :                                                                                               */
-/*                  -  getTransactionDate()                                                                  */
-/*                  -  getTransactionAmount()                                                                */
-/*                  -  setMaxAmount()                                                                        */
-/*                  -  isCardExpired()                                                                       */
-/*                  -  isBelowMaxAmount()                                                                    */
-/*                  -  isValidCardPAN()                                                                      */
+/*                  -  getCardHolderName()                                                                   */
+/*                  -  getCardExpiryDate()                                                                   */
+/*                  -  getCardPAN()                                                                          */
 /###########################################################################################################/
-/*  The Architect Give The APIs                                                                              */
-/*                   1-  The Name of Function                                                                */
-/*                   2-  What is the input                                                                   */
-/*                   3-  Return Type  "Error State"                                                          */
-/*                   4-  Object Like Macros                                                                  */
-/########################################################################################################### /
+
+
+FILE * fptr;
+
+typedef struct ST_cardData_t
+{
+    uint8_t cardHolderName[25];
+    uint8_t primaryAccountNumber[20];
+    uint8_t cardExpirationDate[6];
+}ST_cardData_t;
+
+typedef enum EN_cardError_t
+{
+    CARD_OK, WRONG_NAME, WRONG_EXP_DATE, WRONG_PAN
+}EN_cardError_t;
+
+EN_cardError_t getCardHolderName(ST_cardData_t* cardData);
+EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData);
+EN_cardError_t getCardPAN(ST_cardData_t* cardData);

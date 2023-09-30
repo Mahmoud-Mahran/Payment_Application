@@ -58,7 +58,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 
 
 /*************************************************************************************************************/
-/* @FuncName : isValidCardPAN Function                             @Written by : Mohamed Yehia El-Greatly    */
+/* @FuncName : isValidCardPAN Function @Written by : Mohamed Yehia El-Greatly                                */
 /*************************************************************************************************************/
 /* 1- Function Description                                                                                   */
 /*               @brief : Check if the PAN is a Luhn number or not.                                          */
@@ -77,7 +77,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 	char LuhnNumberLocal = 0;                     /* Used to save the Luhn Number of the origin PAN */
 	char tempLocal = 0;                           /* Used to save the result of multibly by 2*/
 	char sumLocal = 0;                            /* Used in Luhn algorithm and saving the final result */
-	if (cardData != NULL)                         /* Check if the pointer of card data not equal NULL */
+	if (cardData != NULL)                         /* Check if the pointer of card data not equal to NULL */
 	{
 		while (cardData->primaryAccountNumber[loopCounterLocal] != CHAR_NULL) /* This loop to count the number of PAN */
 		{

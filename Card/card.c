@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "card.h"
 //#define TEST_CARD_HOLDER_NAME
-#define bufferLength 50
+#define bufferLength 200
 
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 {
@@ -47,17 +47,34 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 #endif
 
 #ifndef TEST_CARD_HOLDER_NAME
+    FILE* cards;
+    cards = fopen("cards.txt","r");
+    char buffer[bufferLength];
+    fgets(buffer,bufferLength,cards);
+    // scanf("%[^\n]s",cardData->cardHolderName);
+    //unsigned nameLength = strlen(cardData->cardHolderName);
+    int i = 0;
+    int count = 0 ;
+    while(buffer[i++] != ',')
+    {
+        if(!isalpha(buffer[i]) && buffer[i] != ' ')
+            return WRONG_NAME;
+        else
+            count++;
+    }
 
-
-    scanf("%[^\n]s",cardData->cardHolderName);
-    unsigned nameLength = strlen(cardData->cardHolderName);
-    for(int i = 0 ; i < nameLength ; i++)
-        if(isalpha(cardData->cardHolderName[i]) )
-            size++;
-    if(size >= 20 && size < 25)
+    if(count >= 20 && count <25)
+    {
+        int i = 0;
+        while(count >= 0)
+        {
+            cardData->cardHolderName[i] = buffer[i];
+            count--;
+        }
         return CARD_OK;
 
+    }
+    return WRONG_NAME;
 
 #endif // TEST_CARD_HOLDER_NAME
-    return WRONG_NAME;
 }

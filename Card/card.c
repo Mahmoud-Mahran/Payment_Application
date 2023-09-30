@@ -31,8 +31,8 @@
 /*               @param : cardData             @ref ST_cardData_t     struct                                 */
 /* 3- Function Return                                                                                        */
 /*               @return Error status of the card module                                                     */
-/*                (ACCOUNT_NOT_FOUND) : The PAN doesn't exist.                                               */
-/*                (SERVER_OK) : PAN exists in db.                                                            */
+/*                (WRONG_EXP_DATE) : Expiry date length or format error.                                     */
+/*                (CARD_OK) : Expiry date is correctly formatted.                                            */
 /*************************************************************************************************************/
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 { 

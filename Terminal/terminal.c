@@ -16,13 +16,11 @@
 #define	NULL	            	( (void *)0 )
 #define	CHAR_NULL	              ( '\0' )
 #define TERMINAL_DATA_NOK            -1
-#define MAX_PAN                      19
-#define MIN_PAN                      16
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
 /*************************************************************************************************************/
-/* @FuncName : setMaxAmount Function                             @Written by : Mohamed Yehia El-Greatly      */
+/* @FuncName : setMaxAmount Function  @Written by : Mohamed Yehia El-Greatly                                 */
 /*************************************************************************************************************/
 /* 1- Function Description                                                                                   */
 /*               @brief : Takes the maximum allowed amount (Transaction max amount is a float number)        */
@@ -34,6 +32,7 @@
 /*               @return Error status of the terminal module                                                 */
 /*                (TERMINAL_OK) : The function done successfully                                             */
 /*                (INVALID_MAX_AMOUNT) : if the max amount less than (negative number) or equal to 0         */
+/*                (TERMINAL_DATA_NOK) : If the terminal data pointer point to NULL                           */
 /*************************************************************************************************************/
 EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 {
@@ -69,12 +68,14 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 /*               @return Error status of the terminal module                                                 */
 /*                (TERMINAL_OK) : The function done successfully                                             */
 /*                (INVALID_MAX_AMOUNT) : if the max amount less than (negative number) or equal to 0         */
+/*                (TERMINAL_DATA_NOK) : If the terminal data pointer point to NULL                           */
 /*************************************************************************************************************/
 EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 {
 	EN_terminalError_t retFunc = TERMINAL_OK;     /* Initialize the function return by the terminal error state */
 	char loopCounterLocal = 0;                    /* Initialize the counter used in every loop in this function */
 	char LuhnNumberLocal = 0;                     /* Used to save the Luhn Number of the origin PAN */
+	char tempLocal = 0;                           /* Used to save the result of multibly by 2*/
 	char sumLocal = 0;                            /* Used in Luhn algorithm and saving the final result */
 	if (cardData != NULL)                         /* Check if the pointer of card data not equal NULL */
 	{

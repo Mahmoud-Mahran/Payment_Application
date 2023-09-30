@@ -37,7 +37,7 @@
 EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 {
 	EN_terminalError_t retFunc = TERMINAL_OK;     /* Initialize the function return by the terminal error state */
-	if (termData != NULL)                         /* Check if the pointer of terminal data not equal NULL */
+	if (termData != NULL)                         /* Check if the pointer of terminal data not equal to NULL */
 	{
 		if (maxAmount > 0)                        /* Check if the max amount not qual negative or zero number */
 		{

@@ -8,14 +8,18 @@
 /*************************************************************************************************************/
 /*                                              Includes                                                     */
 /*************************************************************************************************************/
+#include <stdint.h>
 #include "terminal.h"
 #include "..\Card\card.h"
 /*************************************************************************************************************/
 /*                                           Define Macros                                                   */
 /*************************************************************************************************************/
+#ifndef NULL
 #define	NULL	            	( (void *)0 )
+#endif
 #define	CHAR_NULL	              ( '\0' )
 #define TERMINAL_DATA_NOK            -1
+#define BUFFER_LENGTH                200
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -55,7 +59,76 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 	}
 	return retFunc;                               /* Return the terminal error state */
 }/* End of setMaxAmount */
-
+/*************************************************************************************************************/
+/* @FuncName : getTransactionAmount Function                        @Written by : Mahmoud Mahran             */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : -Get transaction amount and saves it into terminal data.                           */
+/*                        -Validates entered amount and returns arror state.                                 */
+/* 2- Function Input                                                                                         */
+/*               @param : termData             @ref ST_terminalData_t     struct                             */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (INVALID_AMOUNT) : Amount is less than or equal to 0.                                      */
+/*                (TERMINAL_OK) : Amount entered is valid.                                                   */
+/*************************************************************************************************************/
+EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
+	/*       error state      */
+	EN_terminalError_t FuncRet = 0;
+	/*      file pointer      */
+	FILE *term_fptr;
+	/*        open file    */
+	term_fptr = fopen("Terminal\\placeHolder.txt", "r");
+	/*     check that the file opened successfully     */
+	if(term_fptr != NULL){
+		/*     buffer to store input from file      */
+		char Local_charBuffer[BUFFER_LENGTH] = {0};
+		/*     the input transaction amount         */
+		int32_t Local_u32TransAmount = 0;
+		/*         get input from file              */
+		fgets(Local_charBuffer, BUFFER_LENGTH, term_fptr);
+		/*         convert to integer               */
+		Local_u32TransAmount = atoi(Local_charBuffer);
+		/*     check that the amount is valid       */
+		if(Local_u32TransAmount <= 0 ){
+			/*   error state   */
+			FuncRet = INVALID_AMOUNT;
+		} else {
+			termData->transAmount = (float)Local_u32TransAmount;
+			/*   error state   */
+			FuncRet = TERMINAL_OK;
+		}
+		/*     close the file   */
+		fclose(term_fptr);
+	} else {
+		printf("Unable to open terminal input file.\n");
+	}
+	return FuncRet;
+}
+/*************************************************************************************************************/
+/* @FuncName : isBelowMaxAmount Function                            @Written by : Mahmoud Mahran             */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : Compares the transaction amount with the terminal max allowed amount.              */
+/* 2- Function Input                                                                                         */
+/*               @param : termData             @ref ST_terminalData_t     struct                             */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (EXCEED_MAX_AMOUNT) : Amount is larger than the terminal max allowed amount.               */
+/*                (TERMINAL_OK) : Amount is below max amount.                                                */
+/*************************************************************************************************************/
+EN_terminalError_t isBelowMaxAmount(ST_terminalData_t* termData){
+	EN_terminalError_t FuncRet = 0;
+	/*     check that the amount is below max amount       */
+	if(termData->transAmount <= termData->maxTransAmount ){
+		/*   error state   */
+		FuncRet = EXCEED_MAX_AMOUNT;
+	} else {
+		/*   error state   */
+		FuncRet = TERMINAL_OK;
+	}
+	return FuncRet;
+}
 
 /*************************************************************************************************************/
 /* @FuncName : isValidCardPAN Function                             @Written by : Mohamed Yehia El-Greatly    */

@@ -39,7 +39,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
     FILE *cards = fopen("Card\\cards.txt", "r");
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
-	uint8_t FuncRet = 0;
+	EN_cardError_t FuncRet = 0;
 	if (cards != NULL){
 		/*        buffer to store user input        */
 		char Local_charBuffer[BUFFER_LENGTH] = {0};

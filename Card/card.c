@@ -26,12 +26,12 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 /* @FuncName : getCardPAN Function  @Written by : Mohamed Yehia El-Greatly                                   */
 /*************************************************************************************************************/
 /* 1- Function Description                                                                                   */
-/*               @brief : Takes the maximum allowed amount (Transaction max amount is a float number)        */
-/*                        Stores it into terminal data                                                       */
+/*               @brief : Takes the the card PAN and check it if matches the requires                        */
+/*                        Stores it into card data                                                           */
 /* 2- Function Input                                                                                         */
 /*               @param : cardData       @ref ST_cardData_t  struct                                          */
 /* 3- Function Return                                                                                        */
-/*               @return Error status of the terminal module                                                 */
+/*               @return Error status of the card module                                                     */
 /*                (CARD_OK) : The function done successfully                                                 */
 /*                (WRONG_PAN) : If the PAN more less than 16 or more than 19, If not a number                */
 /*                (CARD_DATA_NOK) : If the card data pointer point to NULL                                   */

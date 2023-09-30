@@ -13,10 +13,15 @@
 #include "server.h"
 #include "..\Card\card.h"
 #include "..\Terminal\terminal.h"
-/*############################################ACCOUNTS DB###################################################*/
+/*############################################ ACCOUNTS DB #################################################*/
 #include "accountDB.h"
+/*########################################### Define Macros ################################################*/
+#define	NULL	            	( (void *)0 )
+#define	CHAR_NULL	              ( '\0' )
+#define SERVER_DATA_NOK              -1
 /*##########################################TRANSACTIONS DB#################################################*/
 ST_transaction transactionsDB[255] = {0};
+static unsigned char limitOfTransaction = 255;
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -118,4 +123,85 @@ void listSavedTransactions(void){
 		i++;
 	}
 }
-
+/*************************************************************************************************************/
+/* @FuncName : isAmountAvailable Function  @Written by : Mohamed Yehia El-Greatly                            */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : Takes terminal data and a reference to the account                                 */
+/*                        check if the account has a sufficient amount to withdraw or not                    */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/*               @param : accountRefrence      @ref ST_accountsDB_t    struct                                */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (SERVER_OK) : The function done successfully                                               */
+/*                (LOW_BALANCE) : If the transaction amount greater than the balance                         */
+/*                (SERVER_DATA_NOK) : If the server data pointer point to NULL                               */
+/*************************************************************************************************************/
+EN_serverError_t isAmountAvailable(ST_terminalData_t* termData, ST_accountsDB_t* accountRefrence)
+{
+	EN_terminalError_t retFunc = SERVER_OK;     /* Initialize the function return by the server error state */
+	if (termData != NULL && accountRefrence != NULL) /* Check if the pointer of account data and terminal data not equal to NULL */
+	{
+		if (termData->transAmount > accountRefrence->balance) /* Check if the transaction amount greater than the balance or not */
+		{
+			retFunc = LOW_BALANCE;              /* Return LOW_BALANCE if true */
+		}
+		else
+		{
+			//Do nothing                        /* Return SERVER_OK if false */
+		}
+	}
+	else
+	{
+		retFunc = SERVER_DATA_NOK;              /* Return SERVER_DATA_NOK If the account pointer or terminal pointer equal to NULL */
+	} 
+	return retFunc;                             /* Return the server error state */
+}
+/*************************************************************************************************************/
+/* @FuncName : saveTransaction Function  @Written by : Mohamed Yehia El-Greatly                            */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : Check if number of transaction exceed the limit machine's transactions             */
+/*                        Update the account balanceand store all transaction data(Any type of transaction)  */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/*               @param : accountRefrence      @ref ST_accountsDB_t    struct                                */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (SERVER_OK) : The function done successfully                                               */
+/*                (SAVING_FAILED) : If number of transaction exceed the limit machine transaction            */
+/*                (SERVER_DATA_NOK) : If the server data pointer point to NULL                               */
+/*************************************************************************************************************/
+EN_serverError_t saveTransaction(ST_transaction_t * transData)
+{
+	EN_terminalError_t retFunc = SERVER_OK;     /* Initialize the function return by the server error state */
+	if (transData != NULL)
+	{
+		if (limitOfTransaction > 0)
+		{
+			limitOfTransaction--;
+			
+			if (transData->transState == APPROVED)
+			{
+				/* Update the account balance */
+				/* account balance - transData->terminalData->transAmount */
+			}
+			/* Store transactionSequenceNumber */
+			transData->transactionSequenceNumber; 
+			/* Store transState */
+			transData->transState;
+			/* Store transactionDate */
+			transData->terminalData->transactionDate[];
+		}
+		else
+		{
+			retFunc = SAVING_FAILED;
+		}
+	}
+	else
+	{
+		retFunc = SERVER_DATA_NOK;
+	}
+	return retFunc;                             /* Return the server error state */
+}

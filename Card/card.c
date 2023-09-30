@@ -39,45 +39,47 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 EN_cardError_t getCardPAN(ST_cardData_t* cardData)
 {
     EN_cardError_t retFunc = CARD_OK;         /* Initialize the function return by the card error state */
-    char loopCounterLocal = -1;                   /* Initialize the counter used in every loop in this function */
-    char bufferLocal[BUFFER_LENGTH];
-    char panLenghtLocal = 0;
-    if (cardData != NULL)
+    char loopCounterLocal = -1;               /* Initialize the counter used in every loop in this function */
+    char bufferLocal[BUFFER_LENGTH];          /* Uesd to save line from the cards file */
+    char panLenghtLocal = 0;                  /* Used as index of PAN array */
+
+    if (cardData != NULL)                     /* Check if the pointer of card data not equal to NULL */
     {
-        fopen_s(&cards,"cards.txt", "r");
-        fgets(bufferLocal, BUFFER_LENGTH, cards);
-        while (bufferLocal[++loopCounterLocal] != ',')
+        fopen_s(&cards,"cards.txt", "r");     /* To open and read file data , save pointer to this file in cards pointer */
+        fgets(bufferLocal, BUFFER_LENGTH, cards); /* Read one line from the file as string and save it in bufferLocal array */
+        while (bufferLocal[++loopCounterLocal] != ',') /* the ',' used to split the line , " Name , PAN , Expired date "*/
         { 
-            //Do Nothing
+            //Do Nothing                      /* Get the start of PAN in the buffer */
         }
-        while (bufferLocal[++loopCounterLocal] != ',')
-        {
+        while (bufferLocal[++loopCounterLocal] != ',') /* The start of PAN */
+        {                                     /* Check if there is no numbers , check if there is no more numbers than the max PAN */
             if (bufferLocal[loopCounterLocal] >= '0' && bufferLocal[loopCounterLocal] <= '9' && panLenghtLocal < MAX_PAN)
             {
-                cardData->primaryAccountNumber[panLenghtLocal++] = bufferLocal[loopCounterLocal];
-                if (panLenghtLocal == MAX_PAN)
-                {
-                    primaryAccountNumber[panLenghtLocal] = '\0';
-                }
-                else
-                {
-                    //Do Nothing
-                }
+                cardData->primaryAccountNumber[panLenghtLocal++] = bufferLocal[loopCounterLocal]; /* Save the PAN in card data array */
+                primaryAccountNumber[panLenghtLocal] = '\0'; /* End of string in the PAN array */
             }
-            else if (buffer[loopCounterLocal] == ' ')
+            else if (buffer[loopCounterLocal] == ' ') /* Ignore any space */
             {
                 //Do Nothing
             }
-            else
+            else                              /* Check if any character found or there is numbers more than the max PAN */
             {
-                retFunc = WRONG_PAN;
+                retFunc = WRONG_PAN;          /* Return WRONG_PAN */
+                cardData->primaryAccountNumber[0] = '\0'; /* Delete old data */
             }
         }
+        if (panLenghtLocal < MIN_PAN )        /* Check if the numbers found in the buffer less than the min PAN */
+        {
+            retFunc = WRONG_PAN;              /* Return WRONG_PAN */
+            cardData->primaryAccountNumber[0] = '\0'; /* Delete old data */
+        }
     }
-    else
+    else 
     {
-        retFunc = CARD_DATA_NOK;
+        retFunc = CARD_DATA_NOK;              /* If the card pointer to data equal to NULL */
     }
+
+    return retFunc;                           /* Return the card error state */
 }
 /*************************************************************************************************************/
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData)

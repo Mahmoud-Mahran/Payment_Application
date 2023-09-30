@@ -33,35 +33,43 @@
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 { 
     FILE *cards = fopen("Card\\card_inputs.txt", "r");
+	/*      counter for comas      */
+	uint8_t Local_u8ComaCounter = 0;
 	if (cards != NULL){
-		/*        buffer to store user input        */
-		char Local_charBuffer[BUFFER_LENGTH] = {0};
-		//printf("Enter Card Expiry Date: ");
-		for(int i = 0; i < 10; i++){
-			/*        getting user input        */
-			fgets(Local_charBuffer, bufferLength, cards);
-			printf("input: %s\n", Local_charBuffer);
-			/*        input length check        */
-			if(Local_charBuffer == 0 || strlen(Local_charBuffer) != 6) {
-				/*        return error state        */
-				return WRONG_EXP_DATE;
-			} else {
-				/*        input format check        */
-				if(isdigit(Local_charBuffer[0]) == 0 || isdigit(Local_charBuffer[1]) == 0 || isdigit(Local_charBuffer[3]) == 0 || isdigit(Local_charBuffer[4]) == 0){
-					/*        return error state        */
-					return WRONG_EXP_DATE;
-				}
-				if(Local_charBuffer[2] != '/'){
-					/*        return error state        */
-					return WRONG_EXP_DATE;
-				}
-				/*        store input in cardData if all checks are passed safely and return card ok        */
-				strcpy(cardData->cardExpirationDate, Local_charBuffer);
-				return CARD_OK;
-			}
+	/*        buffer to store user input        */
+	char Local_charBuffer[BUFFER_LENGTH] = {0};
+	/*        buffer to store the input Expiry Date      */
+	char Local_charBufferExpiry[BUFFER_LENGTH] = {0};
+	/*        getting input        */
+	fgets(Local_charBuffer, bufferLength, cards);
+	for(int i = 0; i < strlen(Local_charBuffer); i++){
+		if(Local_u8ComaCounter == 2){
+			strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
+			break;
 		}
+		if(Local_charBuffer[i] == ',') Local_u8ComaCounter++;
+	}
+	/*        input length check        */
+	if(Local_charBufferExpiry == 0 || strlen(Local_charBufferExpiry) != 6) {
+		/*        return error state        */
+		return WRONG_EXP_DATE;
+	} else {
+		/*        input format check        */
+		if(isdigit(Local_charBufferExpiry[0]) == 0 || isdigit(Local_charBufferExpiry[1]) == 0 || isdigit(Local_charBufferExpiry[3]) == 0 || isdigit(Local_charBufferExpiry[4]) == 0){
+			/*        return error state        */
+			return WRONG_EXP_DATE;
+		}
+		if(Local_charBufferExpiry[2] != '/'){
+			/*        return error state        */
+			return WRONG_EXP_DATE;
+		}
+		/*        store input in cardData if all checks are passed safely and return card ok        */
+		strcpy(cardData->cardExpirationDate, Local_charBufferExpiry);
+		return CARD_OK;
+	}
+	
 		/*        close the file        */
-		fclose(ED_fptr);
+		fclose(cards);
 	} else {
 		/*        print file opening error        */
 		printf("Unable to open file.\n");

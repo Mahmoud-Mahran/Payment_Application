@@ -4,11 +4,15 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "card.h"
 /*************************************************************************************************************/
 /*                                           Define Macros                                                   */
 /*************************************************************************************************************/
+#ifndef NULL
 #define	NULL	            	( (void *)0 )
+#endif
 #define	CHAR_NULL	              ( '\0' )
 #define CARD_DATA_NOK                -1
 #define TEST_CARD_HOLDER_NAME         0
@@ -32,44 +36,51 @@
 /*************************************************************************************************************/
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 { 
-    FILE *cards = fopen("Card\\card_inputs.txt", "r");
+    FILE *cards = fopen("Card\\cards.txt", "r");
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
+	uint8_t FuncRet = 0;
 	if (cards != NULL){
-	/*        buffer to store user input        */
-	char Local_charBuffer[BUFFER_LENGTH] = {0};
-	/*        buffer to store the input Expiry Date      */
-	char Local_charBufferExpiry[BUFFER_LENGTH] = {0};
-	/*        getting input        */
-	fgets(Local_charBuffer, bufferLength, cards);
-	for(int i = 0; i < strlen(Local_charBuffer); i++){
-		if(Local_u8ComaCounter == 2){
-			strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
-			break;
+		/*        buffer to store user input        */
+		char Local_charBuffer[BUFFER_LENGTH] = {0};
+		/*        buffer to store the input Expiry Date      */
+		char Local_charBufferExpiry[BUFFER_LENGTH] = {0};
+		/*        getting input        */
+		fgets(Local_charBuffer, BUFFER_LENGTH, cards);
+		/*        scanning the input string for the expiry date        */
+		for(int i = 0; i < strlen(Local_charBuffer); i++){
+			/*        copy any chars after the second coma        */
+			if(Local_u8ComaCounter == 2){
+				strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
+				break;
+			}
+			/*        increase the coma counter         */
+			if(Local_charBuffer[i] == ',') Local_u8ComaCounter++;
 		}
-		if(Local_charBuffer[i] == ',') Local_u8ComaCounter++;
-	}
-	/*        input length check        */
-	if(Local_charBufferExpiry == 0 || strlen(Local_charBufferExpiry) != 6) {
-		/*        return error state        */
-		return WRONG_EXP_DATE;
-	} else {
-		/*        input format check        */
-		if(isdigit(Local_charBufferExpiry[0]) == 0 || isdigit(Local_charBufferExpiry[1]) == 0 || isdigit(Local_charBufferExpiry[3]) == 0 || isdigit(Local_charBufferExpiry[4]) == 0){
+		/*        input length check        */
+		if(Local_charBufferExpiry == 0 || strlen(Local_charBufferExpiry) != 6) {
 			/*        return error state        */
-			return WRONG_EXP_DATE;
+			FuncRet =  WRONG_EXP_DATE;
+		} else {
+			/*        input format check        */
+			if(isdigit(Local_charBufferExpiry[0]) == 0 || isdigit(Local_charBufferExpiry[1]) == 0 || isdigit(Local_charBufferExpiry[3]) == 0 || isdigit(Local_charBufferExpiry[4]) == 0){
+				/*        return error state        */
+				FuncRet =  WRONG_EXP_DATE;
+			}
+			if(Local_charBufferExpiry[2] != '/'){
+				/*        return error state        */
+				FuncRet =  WRONG_EXP_DATE;
+			}
+			if(FuncRet != WRONG_EXP_DATE){
+				/*        store input in cardData if all checks are passed safely and return card ok        */
+				strcpy(cardData->cardExpirationDate, Local_charBufferExpiry);
+				FuncRet =  CARD_OK;
+			}
 		}
-		if(Local_charBufferExpiry[2] != '/'){
-			/*        return error state        */
-			return WRONG_EXP_DATE;
-		}
-		/*        store input in cardData if all checks are passed safely and return card ok        */
-		strcpy(cardData->cardExpirationDate, Local_charBufferExpiry);
-		return CARD_OK;
-	}
-	
+		/*        return final state        */
+		return FuncRet;
 		/*        close the file        */
-		fclose(cards);
+	    fclose(cards);
 	} else {
 		/*        print file opening error        */
 		printf("Unable to open file.\n");

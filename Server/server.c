@@ -16,7 +16,9 @@
 /*############################################ ACCOUNTS DB #################################################*/
 #include "accountDB.h"
 /*########################################### Define Macros ################################################*/
+#ifndef NULL
 #define	NULL	            	( (void *)0 )
+#endif
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
 /*##########################################TRANSACTIONS DB#################################################*/
@@ -42,6 +44,7 @@ static unsigned char limitOfTransaction = 255;
 /*                (DECLINED_STOLEN_CARD) : account blocked.                                                  */
 /*************************************************************************************************************/
 EN_transState_t recieveTransactionData(ST_transaction_t *transData){
+	EN_transState_t FuncRet = 0;
 	/*     temp account reference to get the account info in        */
 	ST_accountsDB_t Local_uddtAccountReference;
 	/*     check that the account exists        */
@@ -50,21 +53,38 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 		if(isAmountAvailable(&transdata->terminalData, &Local_uddtAccountReference) != LOW_BALANCE){
 			/*     check that the account is running        */
 			if(isBlockedAccount(&Local_uddtAccountReference) != BLOCKED_ACCOUNT){
-				/*     check that the transaction was saved and update balance       */
-				if(saveTransaction(transdata) != SAVING_FAILED){
-					return APPROVED;
-				} else {
-					return INTERNAL_SERVER_ERROR
+				/*         update balance       */
+				Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
+				/*         update transaction state       */
+				transData->transState = APPROVED;
+				/*         error state                    */
+				FuncRet = SERVER_OK;
 				}
 			} else {
-				return DECLINED_STOLEN_CARD;
+				/*         update transaction state       */
+				transData->transState = DECLINED_STOLEN_CARD;
+				/*         error state                    */
+				FuncRet = BLOCKED_ACCOUNT;
 			}
 		} else {
-			return DECLINED_INSUFFECIENT_FUND;
+			/*         update transaction state       */
+			transData->transState = DECLINED_INSUFFECIENT_FUND;
+			/*         error state                    */
+			FuncRet = LOW_BALANCE;
 		}
 	} else {
-		return FRAUD_CARD;
+		/*         update transaction state       */
+		transData->transState =  FRAUD_CARD;
+		/*         error state                    */
+		FuncRet = ACCOUNT_NOT_FOUND;
 	}
+	if(saveTransaction(transdata) == SAVING_FAILED){
+		/*         update transaction state       */
+		transData->transState =  INTERNAL_SERVER_ERROR;
+		/*         error state                    */
+		FuncRet = SAVING_FAILED;
+	}
+	return FuncRet;
 }
 /*************************************************************************************************************/
 /* @FuncName : isValidAccount Function                           @Written by : Mahmoud Mahran                */

@@ -178,7 +178,7 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData, ST_accountsDB_t*
 	return retFunc;                             /* Return the server error state */
 }
 /*************************************************************************************************************/
-/* @FuncName : saveTransaction Function  @Written by : Mohamed Yehia El-Greatly                            */
+/* @FuncName : saveTransaction Function  @Written by : Mohamed Yehia El-Greatly                              */
 /*************************************************************************************************************/
 /* 1- Function Description                                                                                   */
 /*               @brief : Check if number of transaction exceed the limit machine's transactions             */

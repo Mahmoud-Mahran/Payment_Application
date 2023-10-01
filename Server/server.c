@@ -10,19 +10,20 @@
 /*************************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include "server.h"
+#include <stdint.h>
+#include <String.h>
 #include "..\Card\card.h"
 #include "..\Terminal\terminal.h"
-/*############################################ ACCOUNTS DB #################################################*/
-#include "accountDB.h"
+#include "server.h"
 /*########################################### Define Macros ################################################*/
 #ifndef NULL
 #define	NULL	            	( (void *)0 )
 #endif
+#define BUFFER_LENGTH                200
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
 /*##########################################TRANSACTIONS DB#################################################*/
-ST_transaction transactionsDB[255] = {0};
+ST_transaction_t transactionsDB[255] = {0};
 static unsigned char limitOfTransaction = 255;
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
@@ -48,17 +49,22 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 	/*     temp account reference to get the account info in        */
 	ST_accountsDB_t Local_uddtAccountReference;
 	/*     check that the account exists        */
-	if(isValidAccount(&transdata->cardHolderData, &Local_uddtAccountReference) != ACCOUNT_NOT_FOUND){
+	if(isValidAccount(&transData->cardHolderData, &Local_uddtAccountReference) != ACCOUNT_NOT_FOUND){
 		/*     check that amount is available        */
-		if(isAmountAvailable(&transdata->terminalData, &Local_uddtAccountReference) != LOW_BALANCE){
+		if(isAmountAvailable(&transData->terminalData, &Local_uddtAccountReference) != LOW_BALANCE){
 			/*     check that the account is running        */
 			if(isBlockedAccount(&Local_uddtAccountReference) != BLOCKED_ACCOUNT){
-				/*         update balance       */
-				Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
-				/*         update transaction state       */
-				transData->transState = APPROVED;
-				/*         error state                    */
-				FuncRet = SERVER_OK;
+				if(limitOfTransaction > 0){
+					/*         update balance       */
+				    Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
+				    /*         update transaction state       */
+				    transData->transState = APPROVED;
+				    /*         error state                    */
+				    FuncRet = SERVER_OK;
+				} else {
+					transData->transState =  INTERNAL_SERVER_ERROR;
+		            /*         error state                    */
+		            FuncRet = SAVING_FAILED;
 				}
 			} else {
 				/*         update transaction state       */
@@ -78,12 +84,7 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 		/*         error state                    */
 		FuncRet = ACCOUNT_NOT_FOUND;
 	}
-	if(saveTransaction(transdata) == SAVING_FAILED){
-		/*         update transaction state       */
-		transData->transState =  INTERNAL_SERVER_ERROR;
-		/*         error state                    */
-		FuncRet = SAVING_FAILED;
-	}
+	saveTransaction(transData);
 	return FuncRet;
 }
 /*************************************************************************************************************/
@@ -100,19 +101,74 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 /*                (SERVER_OK) : PAN exists in db.                                                            */
 /*************************************************************************************************************/
 EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accountRefrence){
-	/*       loop through the accounts db       */
-	for(int i = 0; i < 255; i++){
-		/*       check for a matching pan number      */
-		if(strcmp(cardData->primaryAccountNumber, accountDB[i].primaryAccountNumber) == 0){
-			/*      store account data in the reference if the account was found */
-			accountRefrence->balance = accountDB[i].balance;
-			accountRefrence->state = accountDB[i].state;
-			accountRefrence->primaryAccountNumber = accountDB[i].primaryAccountNumber;
-			return SERVER_OK;
+	/*      return state      */
+	EN_serverError_t FuncRet = 0;
+	/*      database file pointer      */
+	FILE *accounts_fptr;
+	/*      open file      */
+	fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
+	/*      confirm that the file opened successfully      */
+	if(accounts_fptr != NULL){
+		/*      buffer to store lines from the file      */
+		char Local_charBuffer[BUFFER_LENGTH] = {0};
+		/*      variable to store pan from file      */
+		char Local_charPAN[BUFFER_LENGTH] = {0};
+		/*      variable to store state from file      */
+		EN_accountState_t Local_charState = 0;
+		/*      variable to store balance from file      */
+		float Local_floatBalance = 0.0;
+		/*      temp buffer used for balance float conversion     */
+		char Local_charTempBuff[BUFFER_LENGTH] = {0};
+		uint8_t Local_u8ComaCounter;
+		/*       loop through the accounts db       */
+		for(int i = 0; i < 10; i++){
+			/*      read line from file      */
+			fgets(Local_charBuffer, BUFFER_LENGTH, accounts_fptr);
+			Local_u8ComaCounter = 0;
+			/*      loop throgh the line to parse DB vars     */
+			for(int k = 0; k < strlen(Local_charBuffer); k++){
+				/*      reached 1st coma      */
+				if(Local_u8ComaCounter == 1){
+					/*      copy the balance string to a temp buffer      */
+					for(int j = 0; j < (k - 1); j++){
+						Local_charTempBuff[j] = Local_charBuffer[j];
+					}
+					/*     get account state      */
+					Local_charState = Local_charBuffer[k-1];
+				}
+				/*      copy PAN      */
+				if(Local_charBuffer[k] == '"'){
+					strcpy_s(Local_charPAN, strlen(&Local_charBuffer[k]), Local_charBuffer);
+					/*      remove '"' from end of PAN and replace it with a null char     */
+					Local_charPAN[strlen(Local_charPAN)-2] = '\0';
+					break;
+				}
+				/*      increase coma counter      */
+				if(Local_charBuffer[k] == ',') Local_u8ComaCounter++;
+			}
+			/*      get the account balance by converting the temp buffer to float      */
+			Local_floatBalance = atof(Local_charTempBuff);
+			printf("balance: %f, state: %u, pan: %s\n", Local_floatBalance, Local_charState - '0', Local_charPAN);
+			/*       check for a matching pan number      */
+			if(strcmp(cardData->primaryAccountNumber, Local_charPAN) == 0){
+				/*      store account data in the reference if the account was found */
+				accountRefrence->balance = Local_floatBalance;
+				accountRefrence->state = Local_charState;
+				strcpy_s(accountRefrence->primaryAccountNumber, strlen(Local_charPAN), Local_charPAN);
+				/*      error state      */
+				FuncRet =  SERVER_OK;
+				/*        break from the loop if the pan was found in the DB          */
+				break;
+			} else {
+				/*      error state      */
+				FuncRet =  ACCOUNT_NOT_FOUND;
+			}
 		}
+	/*      return error state      */
+	return FuncRet;
+	} else {
+		printf("Unable to open file.\n");
 	}
-	/*      return error state if the loop finished and the account wasn't found      */
-	return ACCOUNT_NOT_FOUND;
 }
 /*************************************************************************************************************/
 /* @FuncName : listSavedTransactions Function                     @Written by : Mahmoud Mahran               */

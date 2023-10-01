@@ -179,32 +179,28 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
     }
 
 #elif TEST_CARD_HOLDER_NAME    ==     0
-    FILE* cards;
-    cards = fopen("cards.txt","r");
-    char buffer[BUFFER_LENGTH];
-    fgets(buffer, BUFFER_LENGTH,cards);
+    fopen_s(&cards, "cards.txt", "r");
+    fgets(buffer, BUFFER_LENGTH, cards);
+    //printf("%s", buffer);
     // scanf("%[^\n]s",cardData->cardHolderName);
     //unsigned nameLength = strlen(cardData->cardHolderName);
     int i = 0;
-    int count = 0 ;
-    while(buffer[i++] != ',')
+    int nameSize = 0;
+    int spaces = 0;
+    while (buffer[i] != ',')
     {
-        if(!isalpha(buffer[i]) && buffer[i] != ' ')
-            return WRONG_NAME;
-        else
-            count++;
+        if (isalpha(buffer[i++]))
+            nameSize++;
+        if (buffer[i] == ' ')
+            spaces++;
     }
 
-    if(count >= 20 && count <25)
+    //printf("%d \n%d\n", nameSize, spaces);
+    nameSize += spaces;
+    if (nameSize >= 20 && nameSize < 25)
     {
-        int i = 0;
-        while(count >= 0)
-        {
-            cardData->cardHolderName[i] = buffer[i];
-            count--;
-        }
+        strcpy_s(cardData->cardHolderName, nameSize, buffer);
         return CARD_OK;
-
     }
     return WRONG_NAME;
 

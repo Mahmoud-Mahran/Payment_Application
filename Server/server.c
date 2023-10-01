@@ -228,3 +228,7 @@ EN_serverError_t saveTransaction(ST_transaction_t * transData)
 /*************************************************************************************************************/
 
 
+EN_serverError_t isBlockedAccount(ST_accountsDB_t* accountRefrence)
+{
+	return accountRefrence->state == RUNNING ? SERVER_OK : BLOCKED_ACCOUNT;
+}

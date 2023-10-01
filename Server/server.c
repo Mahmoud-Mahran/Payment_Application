@@ -130,7 +130,7 @@ void listSavedTransactions(void){
 	/*      print all saved (non zero) transactions      */
 	while(transactionsDB[i] != 0){
 		printf("#########################\n");
-		printf("Transaction Sequence Number: %d\n", transactionsDB[i].transactionSequenceNumber); 
+		printf("Transaction Sequence Number: %d\n", transactionsDB[i].transactionSequenceNumber);
 		printf("Transaction Date: %s\n", transactionsDB[i].terminalData.transactionDate);
 		printf("Transaction Amount: %f\n", transactionsDB[i].terminalData.transAmount);
 		printf("Transaction State: %s\n", Local_charTransStates[transactionsDB[i].transState]);
@@ -174,7 +174,7 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData, ST_accountsDB_t*
 	else
 	{
 		retFunc = SERVER_DATA_NOK;              /* Return SERVER_DATA_NOK If the account pointer or terminal pointer equal to NULL */
-	} 
+	}
 	return retFunc;                             /* Return the server error state */
 }
 /*************************************************************************************************************/
@@ -222,3 +222,7 @@ EN_serverError_t saveTransaction(ST_transaction_t * transData)
 	return retFunc;                             /* Return the server error state */
 }
 /*************************************************************************************************************/
+EN_serverError_t isBlockedAccount(ST_accountsDB_t* accountRefrence)
+{
+	return accountRefrence->state == RUNNING ? SERVER_OK : BLOCKED_ACCOUNT;
+}

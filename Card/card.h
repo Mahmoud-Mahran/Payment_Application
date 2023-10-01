@@ -19,14 +19,21 @@
 /*###########################################################################################################*/
 #ifndef CARD_H
 #define CARD_H
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_PAN                       19
+#define MIN_PAN                       16
+#define BUFFER_LENGTH                 200
+#define TEST_BUFFER_LENGTH            50
 
-FILE * cards;
-
+FILE* cards ;
+char buffer[BUFFER_LENGTH];
+char testBuffer[50];
 typedef struct ST_cardData_t
 {
-    uint8_t cardHolderName[25];
-    uint8_t primaryAccountNumber[20];
-    uint8_t cardExpirationDate[6];
+    unsigned char cardHolderName[25];
+    unsigned char  primaryAccountNumber[20];
+    unsigned char  cardExpirationDate[6];
 }ST_cardData_t;
 
 typedef enum EN_cardError_t
@@ -37,4 +44,4 @@ typedef enum EN_cardError_t
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData);
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData);
 EN_cardError_t getCardPAN(ST_cardData_t* cardData);
-#endif 
+#endif

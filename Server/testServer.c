@@ -126,8 +126,12 @@ void isBlockedAccountTest(void){
 void isAmountAvailableTest(void){
 	
 }
-void saveTransactionTest(void);
-void listSavedTransactionsTest(void);
+void saveTransactionTest(void){
+	
+}
+void listSavedTransactionsTest(void){
+	
+}
 
 
 void main(void){

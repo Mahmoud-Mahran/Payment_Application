@@ -53,6 +53,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		}
 		else
 		{
+			termData->maxTransAmount = 1000.0;    /* Default of Max transaction amount */
 			retFunc = INVALID_MAX_AMOUNT;         /* If the max amount less or equal to 0 */
 		}
     }
@@ -128,7 +129,7 @@ EN_terminalError_t isBelowMaxAmount(ST_terminalData_t* termData){
 /* 3- Function Return                                                                                        */
 /*               @return Error status of the terminal module                                                 */
 /*                (TERMINAL_OK) : The function done successfully                                             */
-/*                (INVALID_MAX_AMOUNT) : if the max amount less than (negative number) or equal to 0         */
+/*                (INVALID_CARD) : Check Luhn digit and If the PAN less than 16 or more than 19 number       */
 /*                (TERMINAL_DATA_NOK) : If the terminal data pointer point to NULL                           */
 /*************************************************************************************************************/
 EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)

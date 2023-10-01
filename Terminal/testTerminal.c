@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "card/card.h"
+#include "Terminal/terminal.h"
 /*###########################################################################################################*/
 /* Author :                                 Mohamed Yehia El-Greatly                                         */
 /* File Name :                                     testTerminal.c                                                */
@@ -8,8 +12,6 @@
 /*************************************************************************************************************/
 /*                                              Includes                                                     */
 /*************************************************************************************************************/
-#include "terminal.h"
-#include "..\Card\card.h"
 /*************************************************************************************************************/
 void getTransactionDateTest(void)
 {
@@ -26,24 +28,27 @@ void isCardExpriedTest(void)
 {
 	char counterLocal = 0;
 	ST_terminalData_t termData = { 0,0,"01/10/2023" };
-	ST_cardData_t cardData[4] = { {0,0," "},{0,0,"1/10"},{0,0,"01/10"},{0,0,"02/10"},{0,0,"30/09"} };
+	EN_terminalError_t resultsExpected[5];
+	EN_terminalError_t results[5];
+	ST_cardData_t cardData[5] = { {"",""," "},{"","","1/10"},{"","","10/24"},{"","","02/10"},{"","","12/25"} };
 	resultsExpected[0] = EXPIRED_CARD; resultsExpected[1] = EXPIRED_CARD; resultsExpected[2] = TERMINAL_OK;
-	for (counterLocal = 0; counterLocal < 3; counterLocal++)
+    resultsExpected[3] = EXPIRED_CARD; resultsExpected[4] = TERMINAL_OK;
+	for (counterLocal = 0; counterLocal < 5; counterLocal++)
 	{
 		results[counterLocal] = isCardExpired(&cardData[counterLocal], &termData);
 		printf("Tester Name : Mohamed Yehia \n");
 		printf("Function Name : isCardExpired \n");
 		printf("Input Data : ST_cardData_t cardData and ST_terminalData_t termData \n");
-		printf("Test Case %d : Terminal date = %s ,Expired date = %s \n", counterLocal + 1, termData.transactionDate, cardData[counterLocal].cardExpirationDate);
+		printf("Test Case %d : Terminal date = %s ,Expired date = %s \n", counterLocal + 1, termData.transactionDate,cardData[counterLocal].cardExpirationDate );
 		printf("Expected Result : %d ( 0 mean TERMINAL_OK and 2 mean EXPIRED_CARD \n", resultsExpected[counterLocal]);
 		printf("Actual Result : %d  \n", results[counterLocal]);
 	}
-	
+
 }
 void getTransactionAmountTest(void)
 {
 	ST_terminalData_t termData = { 500.0,0,0 };
-	EN_terminalError_t result = getTransactionAmount(&termData));
+	EN_terminalError_t result = getTransactionAmount(&termData);
 	printf("Tester Name : Mohamed Yehia \n");
 	printf("Function Name : getTransactionAmount \n");
 	printf("Input Data : ST_terminalData_t termData \n");
@@ -64,7 +69,7 @@ void isBelowMaxAmountTest(void)
 	termData[0].maxTransAmount = 1000.0;termData[0].transAmount = 1000.0;resultsExpected[0] = TERMINAL_OK;
 	termData[1].maxTransAmount = 500.0;termData[1].transAmount = 1000.0;resultsExpected[1] = EXCEED_MAX_AMOUNT;
 	termData[2].maxTransAmount = 1000.0;termData[2].transAmount = 500.0;resultsExpected[2] = TERMINAL_OK;
-	
+
 	for (counterLocal = 0; counterLocal < 3; counterLocal++)
 	{
 		results[counterLocal] = isBelowMaxAmount(&termData[counterLocal]);
@@ -97,9 +102,9 @@ void setMaxAmountTest(void)
 }
 void isValidCardPANTest(void)
 {
-	ST_cardData_t cardData[3] = { {0,"01234567891011128",0},
-								  {0,"01234567891011129",0},
-								  {0,"01234011129",0}};
+	ST_cardData_t cardData[3] = { {"","400122646549515471",""},
+								  {"","400122646549515472",""},
+								  {"","01234011129",""}};
 	EN_terminalError_t results[3];
 	EN_terminalError_t resultsExpected[3] = { TERMINAL_OK ,INVALID_CARD ,INVALID_CARD };
 	char counterLocal = 0;
@@ -109,12 +114,14 @@ void isValidCardPANTest(void)
 		printf("Tester Name : Mohamed Yehia \n");
 		printf("Function Name : isValidCardPAN \n");
 		printf("Input Data : ST_cardData_t cardData \n");
-		printf("Test Case %d : primaryAccountNumber = %s \n", counterLocal + 1, maxAmount[counterLocal]);
+		printf("Test Case %d : primaryAccountNumber = %s \n", counterLocal + 1, cardData[counterLocal].primaryAccountNumber);
 		printf("Expected Result : %d ( 0 mean TERMINAL_OK and 3 mean INVALID_CARD \n", resultsExpected[counterLocal]);
 		printf("Actual Result : %d  \n", results[counterLocal]);
 	}
 
 }
+
+
 
 void main(void)
 {
@@ -124,3 +131,4 @@ void main(void)
 	setMaxAmountTest();
 	isValidCardPANTest();
 }
+

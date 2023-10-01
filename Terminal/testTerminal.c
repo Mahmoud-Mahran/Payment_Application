@@ -1,7 +1,9 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "card/card.h"
-#include "Terminal/terminal.h"
+#include "../Card/card.h"
+#include "terminal.h"
 /*###########################################################################################################*/
 /* Author :                                 Mohamed Yehia El-Greatly                                         */
 /* File Name :                                     testTerminal.c                                                */

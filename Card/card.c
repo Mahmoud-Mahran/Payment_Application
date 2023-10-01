@@ -16,7 +16,6 @@
 #define	CHAR_NULL	              ( '\0' )
 #define CARD_DATA_NOK                -1
 #define TEST_CARD_HOLDER_NAME         0
-#define BUFFER_LENGTH                 200
 
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
@@ -35,13 +34,12 @@
 /*************************************************************************************************************/
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 {
-    FILE *cards = fopen("Card\\cards.txt", "r");
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
 	EN_cardError_t FuncRet = 0;
 	if (cards != NULL){
 		/*        buffer to store user input        */
-		char Local_charBuffer[BUFFER_LENGTH] = {0};
+		char* Local_charBuffer = buffer;
 		/*        buffer to store the input Expiry Date      */
 		char Local_charBufferExpiry[BUFFER_LENGTH] = {0};
 		/*        getting input        */
@@ -103,13 +101,11 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
 {
     EN_cardError_t retFunc = CARD_OK;         /* Initialize the function return by the card error state */
     char loopCounterLocal = -1;               /* Initialize the counter used in every loop in this function */
-    char bufferLocal[BUFFER_LENGTH];          /* Uesd to save line from the cards file */
+    char * bufferLocal = buffer;          /* Uesd to save line from the cards file */
     char panLenghtLocal = 0;                  /* Used as index of PAN array */
 
     if (cardData != NULL)                     /* Check if the pointer of card data not equal to NULL */
     {
-        fopen_s(&cards,"cards.txt", "r");     /* To open and read file data , save pointer to this file in cards pointer */
-        fgets(bufferLocal, BUFFER_LENGTH, cards); /* Read one line from the file as string and save it in bufferLocal array */
         while (bufferLocal[++loopCounterLocal] != ',') /* the ',' used to split the line , " Name , PAN , Expired date "*/
         {
             //Do Nothing                      /* Get the start of PAN in the buffer */
@@ -147,41 +143,17 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
 /*************************************************************************************************************/
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 {
+    char* localBuffer;
 
+    #ifndef TEST_CARD_HOLDER_NAME
     unsigned int size = 0;
-    char buffer[BUFFER_LENGTH];
-#if TEST_CARD_HOLDER_NAME      ==       1
-    FILE* cards;
-    unsigned int count = 1;
-    cards = fopen("cards.txt", "r");
-    FILE*  expec ;
-    expec = fopen("Expected.txt","r");
-    char exp[BUFFER_LENGTH];
-    printf("Tester Name : mohamed mansour\nFunction Name: getCardHolderName\n");
-    while(fgets(buffer, BUFFER_LENGTH, cards))
-    {
-        unsigned siz = strlen(buffer);
-        fgets(exp, BUFFER_LENGTH, expec);
-        printf("test case : %d\nInput Data:%s\nExpected Result : %s",count++,buffer,exp);
-        printf("\n");
-        if(siz >=20 && siz < 25)
-        {
-
-            printf("Actual Result: : CARD_OK");
-        }
-        else
-            printf("Actual Result: : WRONG_NAME");
-        printf("\n");
-        fclose(cards);
-
-    }
-
-#elif TEST_CARD_HOLDER_NAME    ==     0
     fopen_s(&cards, "cards.txt", "r");
     fgets(buffer, BUFFER_LENGTH, cards);
-    printf("%s", buffer);
-    // scanf("%[^\n]s",cardData->cardHolderName);
-    //unsigned nameLength = strlen(cardData->cardHolderName);
+    localBuffer = buffer;
+    #endif // TEST_CARD_HOLDER_NAME
+    #ifdef TEST_CARD_HOLDER_NAME
+    localBuffer = testBuffer;
+    #endif
     int i = 0;
     int nameSize = 0;
     int spaces = 0;
@@ -193,7 +165,6 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
             spaces++;
     }
 
-    //printf("%d \n%d\n", nameSize, spaces);
     nameSize += spaces;
     if (nameSize >= 20 && nameSize < 25)
     {
@@ -204,5 +175,5 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
     }
     return WRONG_NAME;
 
-#endif // TEST_CARD_HOLDER_NAME
+
 }

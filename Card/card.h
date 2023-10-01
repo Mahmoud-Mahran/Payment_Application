@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #define MAX_PAN                       19
 #define MIN_PAN                       16
-FILE * cards;
+#define BUFFER_LENGTH                 200
+#define TEST_BUFFER_LENGTH            50
 
+FILE* cards ;
+char buffer[BUFFER_LENGTH];
+char testBuffer[50];
 typedef struct ST_cardData_t
 {
     unsigned char cardHolderName[25];

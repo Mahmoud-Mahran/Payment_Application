@@ -78,33 +78,18 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
 	/*       error state      */
 	EN_terminalError_t FuncRet = 0;
-	/*      file pointer      */
-	FILE *term_fptr;
-	/*        open file    */
-	term_fptr = fopen("Terminal\\placeHolder.txt", "r");
-	/*     check that the file opened successfully     */
-	if(term_fptr != NULL){
-		/*     buffer to store input from file      */
-		char Local_charBuffer[BUFFER_LENGTH] = {0};
-		/*     the input transaction amount         */
-		int32_t Local_u32TransAmount = 0;
-		/*         get input from file              */
-		fgets(Local_charBuffer, BUFFER_LENGTH, term_fptr);
-		/*         convert to integer               */
-		Local_u32TransAmount = atoi(Local_charBuffer);
-		/*     check that the amount is valid       */
-		if(Local_u32TransAmount <= 0 ){
-			/*   error state   */
-			FuncRet = INVALID_AMOUNT;
-		} else {
-			termData->transAmount = (float)Local_u32TransAmount;
-			/*   error state   */
-			FuncRet = TERMINAL_OK;
-		}
-		/*     close the file   */
-		fclose(term_fptr);
+	/*     the input transaction amount         */
+	float Local_floatTransAmount = 0;
+	/*         get input from user              */
+	scanf_s("%f", Local_floatTransAmount);
+	/*     check that the amount is valid       */
+	if(Local_floatTransAmount <= 0 ){
+		/*   error state   */
+		FuncRet = INVALID_AMOUNT;
 	} else {
-		printf("Unable to open terminal input file.\n");
+		termData->transAmount = Local_floatTransAmount;
+		/*   error state   */
+		FuncRet = TERMINAL_OK;
 	}
 	return FuncRet;
 }

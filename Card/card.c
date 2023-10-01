@@ -122,7 +122,7 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
                 cardData->primaryAccountNumber[panLenghtLocal++] = bufferLocal[loopCounterLocal]; /* Save the PAN in card data array */
                 primaryAccountNumber[panLenghtLocal] = '\0'; /* End of string in the PAN array */
             }
-            else if (buffer[loopCounterLocal] == ' ') /* Ignore any space */
+            else if (bufferLocal[loopCounterLocal] == ' ') /* Ignore any space */
             {
                 //Do Nothing
             }

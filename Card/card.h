@@ -21,12 +21,13 @@
 #define CARD_H
 
 FILE * cards;
-
+#define MAX_PAN                       19
+#define MIN_PAN                       16
 typedef struct ST_cardData_t
 {
-    uint8_t cardHolderName[25];
-    uint8_t primaryAccountNumber[20];
-    uint8_t cardExpirationDate[6];
+    char cardHolderName[25];
+    char primaryAccountNumber[20];
+    char cardExpirationDate[6];
 }ST_cardData_t;
 
 typedef enum EN_cardError_t

@@ -5,7 +5,8 @@
 /* Date :                                         28 Sep 2023                                                */
 /*###########################################################################################################*/
 /* @Description  :                                                                                           */
-/*                Test terminal                                                                              */
+/*                is an interface between the user and the our software application,                         */
+/*                 consists of hardware part (KayPad) + software module                                      */
 /*                                                                                                           */
 /* Terminal main features  :   - Verify the card data and the user inputs.                                   */
 /*                             - Ask for the amount and PIN number.                                          */
@@ -41,7 +42,7 @@ typedef struct ST_terminalData_t
 {
 	float transAmount;
 	float maxTransAmount;
-	uint8_t transactionDate[11];
+	char transactionDate[11];
 }ST_terminalData_t;
 /*************************************************************************************************************/
 /*                                       Define New ERROR STATE                                              */

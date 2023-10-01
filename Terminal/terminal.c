@@ -212,3 +212,100 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 	}
 	return retFunc;                               /* Return the terminal error state */
 }/* End of isValidCardPAN */
+
+
+
+EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
+{
+
+#ifdef TEST_getTransactionDate
+    uint8_t count = 0;
+    FILE* transDate;
+    uint8_t buffer[BUFFER_LENGTH];
+    uint8_t expectedResult[BUFFER_LENGTH];
+    fopen_s(&transDate,"transdates.txt", "r");
+    FILE*  transDateEcpecRes ;
+    transDateEcpecRes = fopen("Expected.txt","r");
+    unsigned char validDate = 1;
+    printf("Tester Name : mohamed mansour\nFunction Name: getTransactionDate\n");
+    while(fgets(buffer, BUFFER_LENGTH, transDate))
+    {
+        unsigned siz = strlen(buffer);
+        fgets(expectedResult, BUFFER_LENGTH, transDateEcpecRes);
+        printf("test case : %d\nInput Data:%s\nExpected Result : %s",count++,buffer,expectedResult);
+        printf("\n");
+        for(int i = 0 ; i < siz;i++)
+        {
+            //2/5
+            if(i == 2 || i == 5)
+               continue;
+            if(!isdigit(buffer[i]))
+                 validDate = 0;
+
+        }
+        if(validDate)
+            printf("Actual Result: : TERMINAL_OK");
+        else
+
+            printf("Actual Result: : WRONG_DATE ");
+
+
+
+        printf("\n");
+
+
+    }
+      printf("finished\n");
+    fclose(transDate);
+    fclose(transDateEcpecRes);
+
+#endif
+#ifndef TEST_getTransactionDate
+    time_t t = time(NULL);
+    struct tm tm;
+    localtime_s(&tm,&t);
+    int year = tm.tm_year + 1900;
+    int month = tm.tm_mon + 1;
+    int day = tm.tm_mday;
+    unsigned int index = 9;
+    while(year )
+    {
+        termData->transactionDate[index--] = year%10 + '0';
+        year /= 10;
+    }
+
+    //termData->transactionDate[index--] =  '0';
+    index = 5;
+    termData->transactionDate[index--] = '/';
+    while(month)
+    {
+        termData->transactionDate[index--] = month%10 + '0';
+        month /= 10;
+    }
+
+    index = 2;
+    termData->transactionDate[index--] = '/';
+    while(day)
+    {
+        termData->transactionDate[index--] = day%10 + '0';
+        day /= 10;
+    }
+
+#endif
+return TERMINAL_OK;
+}
+
+EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
+{
+    time_t t = time(NULL);
+    struct tm tm;
+    localtime_s(&tm,&t);
+    int transYear = tm.tm_year + 1900;
+    int transMonth = tm.tm_mon + 1;
+    int cardMonth = (cardData->cardExpirationDate[0] - '0') * 10 + (cardData->cardExpirationDate[1] - '0');
+    int cardYear  = (cardData->cardExpirationDate[3] - '0') * 10 + (cardData->cardExpirationDate[4] - '0');
+    if(((transMonth <= cardMonth) && (transYear <= cardYear)) || (transYear < cardYear))
+        return TERMINAL_OK;
+    return EXPIRED_CARD;
+
+}

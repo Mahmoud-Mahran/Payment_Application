@@ -10,7 +10,6 @@
 /*************************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include "server.h"
 #include "..\Card\card.h"
 #include "..\Terminal\terminal.h"
 /*############################################ ACCOUNTS DB #################################################*/
@@ -22,7 +21,7 @@
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
 /*##########################################TRANSACTIONS DB#################################################*/
-ST_transaction transactionsDB[255] = {0};
+ST_transaction transactionsDB[255];
 static unsigned char limitOfTransaction = 255;
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
@@ -196,23 +195,20 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData, ST_accountsDB_t*
 EN_serverError_t saveTransaction(ST_transaction_t * transData)
 {
 	EN_terminalError_t retFunc = SERVER_OK;     /* Initialize the function return by the server error state */
+	char indexlocal = 255 - limitOfTransaction;
 	if (transData != NULL)
 	{
 		if (limitOfTransaction > 0)
 		{
 			limitOfTransaction--;
-			
-			if (transData->transState == APPROVED)
-			{
-				/* Update the account balance */
-				/* account balance - transData->terminalData->transAmount */
-			}
-			/* Store transactionSequenceNumber */
-			transData->transactionSequenceNumber; 
-			/* Store transState */
-			transData->transState;
-			/* Store transactionDate */
-			transData->terminalData->transactionDate[];
+			/* Store transaction Sequence Number */
+			transactionsDB[indexlocal]->transactionSequenceNumber = indexlocal + 1 ;
+			/* Store cardHolder Data */
+			transactionsDB[indexlocal]->cardHolderData = transData->cardHolderData;
+			/* Store transaction State */
+			transactionsDB[indexlocal]->transState = transData->transState;
+			/* Store transaction Date */
+			transactionsDB[indexlocal]->terminalData = transData->terminalData;
 		}
 		else
 		{

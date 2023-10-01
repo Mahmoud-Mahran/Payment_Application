@@ -223,6 +223,7 @@ EN_serverError_t saveTransaction(ST_transaction_t * transData)
 	{
 		retFunc = SERVER_DATA_NOK;
 	}
+
 	return retFunc;                             /* Return the server error state */
 }
 /*************************************************************************************************************/

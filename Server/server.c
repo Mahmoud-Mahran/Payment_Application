@@ -22,12 +22,10 @@
 #define BUFFER_LENGTH                200
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
-/*##########################################ACCOUNTS DB#####################################################*/
-/*      database file pointer      */
-FILE *accounts_fptr;
 /*##########################################TRANSACTIONS DB#################################################*/
 ST_transaction_t transactionsDB[255] = {0};
 static unsigned char limitOfTransaction = 255;
+static fpos_t db_pos;
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -61,19 +59,21 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 					/*            update balance           */
 					Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
 					/*      database file pointer      */
-	                FILE *accounts_fptr;
+					FILE *accounts_fptr;
 	                /*      open file      */
 	                fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
-				    if(accounts_fptr != NULL){
-						/*      buffer to store lines from the file      */
-		                char Local_charBuffer[BUFFER_LENGTH] = {0};
-		                /*      variable to store pan from file      */
-		                char Local_charPAN[BUFFER_LENGTH] = {0};
-					}
+					fsetpos(accounts_fptr, &db_pos);
+					/*      buffer to store the line to write to the file      */
+		            char Local_charBuffer[BUFFER_LENGTH] = {0};
+					/*      format the line to write to the file      */
+					sprintf(Local_charBuffer, "%f,%d,\"%s\"", Local_uddtAccountReference.balance, Local_uddtAccountReference.state, Local_uddtAccountReference.primaryAccountNumber);
+					/*      write to  file      */
+					fputs(Local_charBuffer, accounts_fptr);
 				    /*         update transaction state       */
 				    transData->transState = APPROVED;
 				    /*         error state                    */
 				    FuncRet = SERVER_OK;
+					fclose(accounts_fptr);
 				} else {
 					transData->transState =  INTERNAL_SERVER_ERROR;
 		            /*         error state                    */
@@ -116,6 +116,8 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accountRefrence){
 	/*      return state      */
 	EN_serverError_t FuncRet = 0;
+	/*      database file pointer      */
+	FILE *accounts_fptr;
 	/*      open file      */
 	fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
 	/*      confirm that the file opened successfully      */
@@ -133,6 +135,7 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 		uint8_t Local_u8ComaCounter;
 		/*       loop through the accounts db       */
 		for(int i = 0; i < 10; i++){
+			fgetpos(accounts_fptr, &db_pos);
 			/*      read line from file      */
 			fgets(Local_charBuffer, BUFFER_LENGTH, accounts_fptr);
 			Local_u8ComaCounter = 0;
@@ -174,6 +177,7 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 				FuncRet =  ACCOUNT_NOT_FOUND;
 			}
 		}
+	fclose(accounts_fptr);
 	/*      return error state      */
 	return FuncRet;
 	} else {

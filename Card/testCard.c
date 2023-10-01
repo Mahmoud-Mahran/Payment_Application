@@ -46,5 +46,52 @@ void getCardHolderNameTest(void)
     fclose(testFile);
     fclose(expectedResultsFile);
 }
-void getCardExpiryDateTest(void) {}
-void getCardPANTest(void) {}
+void getCardExpiryDateTest(void) {
+
+}
+void getCardPANTest(void) {
+    FILE* testPanFile;
+    FILE* ecpectedPanResultsFile;
+    enum EN_cardError_t error ;
+    ST_cardData_t testCard = {"","",""};
+    testPanFile =  fopen("cards.txt","r");
+    ecpectedPanResultsFile =  fopen("Expected_pan.txt","r");
+    char i = 0;
+    unsigned char count = 0;
+    char loopCounterLocal=0;
+    char ecpectedPanResults[50];
+    printf("Tester Name : mohamed mansour\nFunction Name: getCardPAN\n");
+    while(i < 5)
+    {
+        i++;
+        //unsigned siz = strlen(buffer);
+        fgets(ecpectedPanResults, TEST_BUFFER_LENGTH, ecpectedPanResultsFile);
+       // printf("expected: %s\n",expectedResultBuffer);
+        fgets(buffer, BUFFER_LENGTH, testPanFile);
+        error = getCardPAN(&testCard);
+     //   printf("****%s***\n",testBuffer);
+        printf("test case : %d\nInput Data:",count++);
+        loopCounterLocal = -1;
+        while (buffer[++loopCounterLocal] != ',') /* the ',' used to split the line , " Name , PAN , Expired date "*/
+        {
+            //Do Nothing                      /* Get the start of PAN in the buffer */
+        }
+        while (buffer[++loopCounterLocal] != ',') /* The start of PAN */
+        {
+            printf("%c",buffer[loopCounterLocal]);
+        }
+        printf("\nExpected Result : %s",ecpectedPanResults);
+        //printf("\n");
+        if(getCardPAN(&testCard) == CARD_OK)
+        {
+
+            printf("Actual Result: : CARD_OK");
+        }
+        else
+            printf("Actual Result: : WRONG_NAME");
+        printf("\n");
+
+
+    }
+
+}

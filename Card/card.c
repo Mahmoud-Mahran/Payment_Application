@@ -17,8 +17,7 @@
 #define CARD_DATA_NOK                -1
 #define TEST_CARD_HOLDER_NAME         0
 #define BUFFER_LENGTH                 200
-#define MAX_PAN                       19
-#define MIN_PAN                       16
+
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -35,7 +34,7 @@
 /*                (CARD_OK) : Expiry date is correctly formatted.                                            */
 /*************************************************************************************************************/
 EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
-{ 
+{
     FILE *cards = fopen("Card\\cards.txt", "r");
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
@@ -112,7 +111,7 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
         fopen_s(&cards,"cards.txt", "r");     /* To open and read file data , save pointer to this file in cards pointer */
         fgets(bufferLocal, BUFFER_LENGTH, cards); /* Read one line from the file as string and save it in bufferLocal array */
         while (bufferLocal[++loopCounterLocal] != ',') /* the ',' used to split the line , " Name , PAN , Expired date "*/
-        { 
+        {
             //Do Nothing                      /* Get the start of PAN in the buffer */
         }
         while (bufferLocal[++loopCounterLocal] != ',') /* The start of PAN */
@@ -120,7 +119,7 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
             if (bufferLocal[loopCounterLocal] >= '0' && bufferLocal[loopCounterLocal] <= '9' && panLenghtLocal < MAX_PAN)
             {
                 cardData->primaryAccountNumber[panLenghtLocal++] = bufferLocal[loopCounterLocal]; /* Save the PAN in card data array */
-                primaryAccountNumber[panLenghtLocal] = '\0'; /* End of string in the PAN array */
+                cardData->primaryAccountNumber[panLenghtLocal] = '\0'; /* End of string in the PAN array */
             }
             else if (bufferLocal[loopCounterLocal] == ' ') /* Ignore any space */
             {
@@ -138,7 +137,7 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
             cardData->primaryAccountNumber[0] = '\0'; /* Delete old data */
         }
     }
-    else 
+    else
     {
         retFunc = CARD_DATA_NOK;              /* If the card pointer to data equal to NULL */
     }
@@ -150,10 +149,9 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 {
 
     unsigned int size = 0;
-
+    char buffer[BUFFER_LENGTH];
 #if TEST_CARD_HOLDER_NAME      ==       1
     FILE* cards;
-    char buffer[BUFFER_LENGTH];
     unsigned int count = 1;
     cards = fopen("cards.txt", "r");
     FILE*  expec ;
@@ -181,7 +179,7 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 #elif TEST_CARD_HOLDER_NAME    ==     0
     fopen_s(&cards, "cards.txt", "r");
     fgets(buffer, BUFFER_LENGTH, cards);
-    //printf("%s", buffer);
+    printf("%s", buffer);
     // scanf("%[^\n]s",cardData->cardHolderName);
     //unsigned nameLength = strlen(cardData->cardHolderName);
     int i = 0;
@@ -199,7 +197,9 @@ EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
     nameSize += spaces;
     if (nameSize >= 20 && nameSize < 25)
     {
-        strcpy_s(cardData->cardHolderName, nameSize, buffer);
+        for(int i = 0 ; i < nameSize ; i++)
+            cardData->cardHolderName[i] = buffer[i];
+
         return CARD_OK;
     }
     return WRONG_NAME;

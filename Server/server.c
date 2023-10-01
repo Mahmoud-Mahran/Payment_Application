@@ -22,6 +22,9 @@
 #define BUFFER_LENGTH                200
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
+/*##########################################ACCOUNTS DB#####################################################*/
+/*      database file pointer      */
+FILE *accounts_fptr;
 /*##########################################TRANSACTIONS DB#################################################*/
 ST_transaction_t transactionsDB[255] = {0};
 static unsigned char limitOfTransaction = 255;
@@ -55,8 +58,18 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 			/*     check that the account is running        */
 			if(isBlockedAccount(&Local_uddtAccountReference) != BLOCKED_ACCOUNT){
 				if(limitOfTransaction > 0){
-					/*         update balance       */
-				    Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
+					/*            update balance           */
+					Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
+					/*      database file pointer      */
+	                FILE *accounts_fptr;
+	                /*      open file      */
+	                fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
+				    if(accounts_fptr != NULL){
+						/*      buffer to store lines from the file      */
+		                char Local_charBuffer[BUFFER_LENGTH] = {0};
+		                /*      variable to store pan from file      */
+		                char Local_charPAN[BUFFER_LENGTH] = {0};
+					}
 				    /*         update transaction state       */
 				    transData->transState = APPROVED;
 				    /*         error state                    */
@@ -103,8 +116,6 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accountRefrence){
 	/*      return state      */
 	EN_serverError_t FuncRet = 0;
-	/*      database file pointer      */
-	FILE *accounts_fptr;
 	/*      open file      */
 	fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
 	/*      confirm that the file opened successfully      */

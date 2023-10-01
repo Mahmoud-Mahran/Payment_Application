@@ -36,26 +36,28 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 {
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
-	EN_cardError_t FuncRet = 0;
+	EN_cardError_t FuncRet;
 	if (cards != NULL){
+            Local_u8ComaCounter = 0;
 		/*        buffer to store user input        */
 		char* Local_charBuffer = buffer;
 		/*        buffer to store the input Expiry Date      */
 		char Local_charBufferExpiry[BUFFER_LENGTH] = {0};
 		/*        getting input        */
-		fgets(Local_charBuffer, BUFFER_LENGTH, cards);
+		//fgets(Local_charBuffer, BUFFER_LENGTH, cards);
 		/*        scanning the input string for the expiry date        */
 		for(int i = 0; i < strlen(Local_charBuffer); i++){
 			/*        copy any chars after the second coma        */
 			if(Local_u8ComaCounter == 2){
 				strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
+				Local_charBufferExpiry[(strlen(Local_charBufferExpiry)-2)] = '\0';
 				break;
 			}
 			/*        increase the coma counter         */
 			if(Local_charBuffer[i] == ',') Local_u8ComaCounter++;
 		}
 		/*        input length check        */
-		if(Local_charBufferExpiry == 0 || strlen(Local_charBufferExpiry) != 6) {
+		if(Local_charBufferExpiry == 0 || strlen(Local_charBufferExpiry) != 5) {
 			/*        return error state        */
 			FuncRet =  WRONG_EXP_DATE;
 		} else {

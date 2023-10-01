@@ -216,39 +216,47 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 	return retFunc;                               /* Return the terminal error state */
 }/* End of isValidCardPAN */
 
-
+/*************************************************************************************************************/
+/* @FuncName : getTransactionDate Function @Written by : Mohamed Mansour                                     */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : get the system date as a transaction date and store it.                            */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully as we always use ths system date            */
+/*************************************************************************************************************/
 
 EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
-
-    time_t t = time(NULL);
-    struct tm tm;
-    tm = *localtime(&t);
-    int year = tm.tm_year + 1900;
+    time_t t = time(NULL);          /*create a time pointer*/
+    struct tm tm;                   /*Structure containing a calendar date and time broken down into its components*/
+    tm = *localtime(&t);            /*use the time pointer to fill the tm struct components*/
+    int year = tm.tm_year + 1900;   /*get tm components*/
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;
-    unsigned int index = 9;
-    strcpy(termData->transactionDate,"00/00/0000");
+    unsigned int index = 9;         /*used to indexing the transactionDate array*/
+    strcpy(termData->transactionDate,"00/00/0000"); /*initial value for the date to be fill */
 
 
-    while(year)
+    while(year)                     /*convert year component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = year%10 + '0';
         year /= 10;
     }
 
-    //termData->transactionDate[index--] =  '0';
-    index = 5;
+    index = 5;                      /*to ensure that all missed elements in the year will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(month)
+    while(month)                    /*convert month component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = month%10 + '0';
         month /= 10;
     }
 
-    index = 2;
+    index = 2;                       /*to ensure that all missed elements in the month will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(day)
+    while(day)                       /*convert day component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = day%10 + '0';
         day /= 10;
@@ -256,14 +264,25 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 
 return TERMINAL_OK;
 }
-
+/*************************************************************************************************************/
+/* @FuncName : isCardExpired Function @Written by : Mohamed Mansour                                          */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : check if the card is expired or working based on system date that recently stored  */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully                                             */
+/*                (EXPIRED_CARD): if the card is expired                                                     */
+/*************************************************************************************************************/
 EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
 {
 
-
+    /**convert card expired date into integer values to be compared with the transaction date**/
     int cardMonth = (cardData->cardExpirationDate[0] - '0') * 10 + (cardData->cardExpirationDate[1] - '0');
     int cardYear  = (cardData->cardExpirationDate[3] - '0') * 10 + (cardData->cardExpirationDate[4] - '0');
-    //////////
+    /**convert transaction date into integer values to be compared with the card expired date**/
     int transMonth = (termData->transactionDate[3] - '0') * 10 + (termData->transactionDate[4] - '0');
     int transYear  = (termData->transactionDate[8] - '0') * 10 + (termData->transactionDate[9] - '0');
 

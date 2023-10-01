@@ -148,7 +148,6 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 			}
 			/*      get the account balance by converting the temp buffer to float      */
 			Local_floatBalance = atof(Local_charTempBuff);
-			printf("balance: %f, state: %u, pan: %s\n", Local_floatBalance, Local_charState - '0', Local_charPAN);
 			/*       check for a matching pan number      */
 			if(strcmp(cardData->primaryAccountNumber, Local_charPAN) == 0){
 				/*      store account data in the reference if the account was found */

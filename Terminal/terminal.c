@@ -9,8 +9,11 @@
 /*                                              Includes                                                     */
 /*************************************************************************************************************/
 #include <stdint.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "terminal.h"
-#include "..\Card\card.h"
+#include "../Card/card.h"
 /*************************************************************************************************************/
 /*                                           Define Macros                                                   */
 /*************************************************************************************************************/
@@ -46,7 +49,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		if (maxAmount > 0)                        /* Check if the max amount not qual negative or zero number */
 		{
 			termData->maxTransAmount = maxAmount; /* Store the max amount of the terminal */
-			
+
 		}
 		else
 		{
@@ -76,33 +79,18 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
 	/*       error state      */
 	EN_terminalError_t FuncRet = 0;
-	/*      file pointer      */
-	FILE *term_fptr;
-	/*        open file    */
-	term_fptr = fopen("Terminal\\placeHolder.txt", "r");
-	/*     check that the file opened successfully     */
-	if(term_fptr != NULL){
-		/*     buffer to store input from file      */
-		char Local_charBuffer[BUFFER_LENGTH] = {0};
-		/*     the input transaction amount         */
-		int32_t Local_u32TransAmount = 0;
-		/*         get input from file              */
-		fgets(Local_charBuffer, BUFFER_LENGTH, term_fptr);
-		/*         convert to integer               */
-		Local_u32TransAmount = atoi(Local_charBuffer);
-		/*     check that the amount is valid       */
-		if(Local_u32TransAmount <= 0 ){
-			/*   error state   */
-			FuncRet = INVALID_AMOUNT;
-		} else {
-			termData->transAmount = (float)Local_u32TransAmount;
-			/*   error state   */
-			FuncRet = TERMINAL_OK;
-		}
-		/*     close the file   */
-		fclose(term_fptr);
+	/*     the input transaction amount         */
+	float Local_floatTransAmount = 0;
+	/*         get input from user              */
+	scanf_s("%f", Local_floatTransAmount);
+	/*     check that the amount is valid       */
+	if(Local_floatTransAmount <= 0 ){
+		/*   error state   */
+		FuncRet = INVALID_AMOUNT;
 	} else {
-		printf("Unable to open terminal input file.\n");
+		termData->transAmount = Local_floatTransAmount;
+		/*   error state   */
+		FuncRet = TERMINAL_OK;
 	}
 	return FuncRet;
 }
@@ -204,7 +192,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		}
 		else
 		{
-			retFunc = INVALID_CARD;               /* Return INVALID_CARD if the PAN less than 16 or more than 19 number */   
+			retFunc = INVALID_CARD;               /* Return INVALID_CARD if the PAN less than 16 or more than 19 number */
 		}
 	}
 	else
@@ -214,97 +202,76 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 	return retFunc;                               /* Return the terminal error state */
 }/* End of isValidCardPAN */
 
-
+/*************************************************************************************************************/
+/* @FuncName : getTransactionDate Function @Written by : Mohamed Mansour                                     */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : get the system date as a transaction date and store it.                            */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully as we always use ths system date            */
+/*************************************************************************************************************/
 
 EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
-
-#ifdef TEST_getTransactionDate
-    uint8_t count = 0;
-    FILE* transDate;
-    uint8_t buffer[BUFFER_LENGTH];
-    uint8_t expectedResult[BUFFER_LENGTH];
-    fopen_s(&transDate,"transdates.txt", "r");
-    FILE*  transDateEcpecRes ;
-    transDateEcpecRes = fopen("Expected.txt","r");
-    unsigned char validDate = 1;
-    printf("Tester Name : mohamed mansour\nFunction Name: getTransactionDate\n");
-    while(fgets(buffer, BUFFER_LENGTH, transDate))
-    {
-        unsigned siz = strlen(buffer);
-        fgets(expectedResult, BUFFER_LENGTH, transDateEcpecRes);
-        printf("test case : %d\nInput Data:%s\nExpected Result : %s",count++,buffer,expectedResult);
-        printf("\n");
-        for(int i = 0 ; i < siz;i++)
-        {
-            //2/5
-            if(i == 2 || i == 5)
-               continue;
-            if(!isdigit(buffer[i]))
-                 validDate = 0;
-
-        }
-        if(validDate)
-            printf("Actual Result: : TERMINAL_OK");
-        else
-
-            printf("Actual Result: : WRONG_DATE ");
-
-
-
-        printf("\n");
-
-
-    }
-      printf("finished\n");
-    fclose(transDate);
-    fclose(transDateEcpecRes);
-
-#endif
-#ifndef TEST_getTransactionDate
-    time_t t = time(NULL);
-    struct tm tm;
-    localtime_s(&tm,&t);
-    int year = tm.tm_year + 1900;
+    time_t t = time(NULL);          /*create a time pointer*/
+    struct tm tm;                   /*Structure containing a calendar date and time broken down into its components*/
+    tm = *localtime(&t);            /*use the time pointer to fill the tm struct components*/
+    int year = tm.tm_year + 1900;   /*get tm components*/
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;
-    unsigned int index = 9;
-    while(year )
+    unsigned int index = 9;         /*used to indexing the transactionDate array*/
+    strcpy(termData->transactionDate,"00/00/0000"); /*initial value for the date to be fill */
+
+
+    while(year)                     /*convert year component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = year%10 + '0';
         year /= 10;
     }
 
-    //termData->transactionDate[index--] =  '0';
-    index = 5;
+    index = 5;                      /*to ensure that all missed elements in the year will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(month)
+    while(month)                    /*convert month component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = month%10 + '0';
         month /= 10;
     }
 
-    index = 2;
+    index = 2;                       /*to ensure that all missed elements in the month will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(day)
+    while(day)                       /*convert day component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = day%10 + '0';
         day /= 10;
     }
 
-#endif
 return TERMINAL_OK;
 }
-
+/*************************************************************************************************************/
+/* @FuncName : isCardExpired Function @Written by : Mohamed Mansour                                          */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : check if the card is expired or working based on system date that recently stored  */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully                                             */
+/*                (EXPIRED_CARD): if the card is expired                                                     */
+/*************************************************************************************************************/
 EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
 {
-    time_t t = time(NULL);
-    struct tm tm;
-    localtime_s(&tm,&t);
-    int transYear = tm.tm_year + 1900;
-    int transMonth = tm.tm_mon + 1;
+
+    /**convert card expired date into integer values to be compared with the transaction date**/
     int cardMonth = (cardData->cardExpirationDate[0] - '0') * 10 + (cardData->cardExpirationDate[1] - '0');
     int cardYear  = (cardData->cardExpirationDate[3] - '0') * 10 + (cardData->cardExpirationDate[4] - '0');
+    /**convert transaction date into integer values to be compared with the card expired date**/
+    int transMonth = (termData->transactionDate[3] - '0') * 10 + (termData->transactionDate[4] - '0');
+    int transYear  = (termData->transactionDate[8] - '0') * 10 + (termData->transactionDate[9] - '0');
+
     if(((transMonth <= cardMonth) && (transYear <= cardYear)) || (transYear < cardYear))
         return TERMINAL_OK;
     return EXPIRED_CARD;

@@ -9,8 +9,11 @@
 /*                                              Includes                                                     */
 /*************************************************************************************************************/
 #include <stdint.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "terminal.h"
-#include "..\Card\card.h"
+#include "../Card/card.h"
 /*************************************************************************************************************/
 /*                                           Define Macros                                                   */
 /*************************************************************************************************************/
@@ -46,7 +49,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		if (maxAmount > 0)                        /* Check if the max amount not qual negative or zero number */
 		{
 			termData->maxTransAmount = maxAmount; /* Store the max amount of the terminal */
-			
+
 		}
 		else
 		{
@@ -203,7 +206,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		}
 		else
 		{
-			retFunc = INVALID_CARD;               /* Return INVALID_CARD if the PAN less than 16 or more than 19 number */   
+			retFunc = INVALID_CARD;               /* Return INVALID_CARD if the PAN less than 16 or more than 19 number */
 		}
 	}
 	else
@@ -218,57 +221,17 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
 
-#ifdef TEST_getTransactionDate
-    uint8_t count = 0;
-    FILE* transDate;
-    uint8_t buffer[BUFFER_LENGTH];
-    uint8_t expectedResult[BUFFER_LENGTH];
-    fopen_s(&transDate,"transdates.txt", "r");
-    FILE*  transDateEcpecRes ;
-    transDateEcpecRes = fopen("Expected.txt","r");
-    unsigned char validDate = 1;
-    printf("Tester Name : mohamed mansour\nFunction Name: getTransactionDate\n");
-    while(fgets(buffer, BUFFER_LENGTH, transDate))
-    {
-        unsigned siz = strlen(buffer);
-        fgets(expectedResult, BUFFER_LENGTH, transDateEcpecRes);
-        printf("test case : %d\nInput Data:%s\nExpected Result : %s",count++,buffer,expectedResult);
-        printf("\n");
-        for(int i = 0 ; i < siz;i++)
-        {
-            //2/5
-            if(i == 2 || i == 5)
-               continue;
-            if(!isdigit(buffer[i]))
-                 validDate = 0;
-
-        }
-        if(validDate)
-            printf("Actual Result: : TERMINAL_OK");
-        else
-
-            printf("Actual Result: : WRONG_DATE ");
-
-
-
-        printf("\n");
-
-
-    }
-      printf("finished\n");
-    fclose(transDate);
-    fclose(transDateEcpecRes);
-
-#endif
-#ifndef TEST_getTransactionDate
     time_t t = time(NULL);
     struct tm tm;
-    localtime_s(&tm,&t);
+    tm = *localtime(&t);
     int year = tm.tm_year + 1900;
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;
     unsigned int index = 9;
-    while(year )
+    strcpy(termData->transactionDate,"00/00/0000");
+
+
+    while(year)
     {
         termData->transactionDate[index--] = year%10 + '0';
         year /= 10;
@@ -291,19 +254,19 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
         day /= 10;
     }
 
-#endif
 return TERMINAL_OK;
 }
 
 EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
 {
-    time_t t = time(NULL);
-    struct tm tm;
-    localtime_s(&tm,&t);
-    int transYear = tm.tm_year + 1900;
-    int transMonth = tm.tm_mon + 1;
+
+
     int cardMonth = (cardData->cardExpirationDate[0] - '0') * 10 + (cardData->cardExpirationDate[1] - '0');
     int cardYear  = (cardData->cardExpirationDate[3] - '0') * 10 + (cardData->cardExpirationDate[4] - '0');
+    //////////
+    int transMonth = (termData->transactionDate[3] - '0') * 10 + (termData->transactionDate[4] - '0');
+    int transYear  = (termData->transactionDate[8] - '0') * 10 + (termData->transactionDate[9] - '0');
+
     if(((transMonth <= cardMonth) && (transYear <= cardYear)) || (transYear < cardYear))
         return TERMINAL_OK;
     return EXPIRED_CARD;

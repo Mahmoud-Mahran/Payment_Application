@@ -106,9 +106,9 @@ EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
 /*                (TERMINAL_OK) : Amount is below max amount.                                                */
 /*************************************************************************************************************/
 EN_terminalError_t isBelowMaxAmount(ST_terminalData_t* termData){
-	EN_terminalError_t FuncRet = 0;
+	EN_terminalError_t FuncRet = TERMINAL_OK;
 	/*     check that the amount is below max amount       */
-	if(termData->transAmount <= termData->maxTransAmount ){
+	if(termData->transAmount > termData->maxTransAmount ){
 		/*   error state   */
 		FuncRet = EXCEED_MAX_AMOUNT;
 	} else {
@@ -143,7 +143,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		while (cardData->primaryAccountNumber[loopCounterLocal] != CHAR_NULL) /* This loop to count the number of PAN */
 		{
 			loopCounterLocal++;
-			if (loopCounterLocal == MAX_PAN+1)    /* Check if this string doesn't have NULL character */
+			if (loopCounterLocal == 20 )    /* Check if this string doesn't have NULL character */
 			{
 				break;                            /* Break to prevent the infinity loop */
 			}
@@ -154,7 +154,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		}
 		if (loopCounterLocal >= MIN_PAN && loopCounterLocal <= MAX_PAN) /* PAN range between 16 & 19 numbers */
 		{
-			LuhnNumberLocal = cardData->primaryAccountNumber[loopCounterLocal - 1]; /* Save the given Luhn number */
+			LuhnNumberLocal = cardData->primaryAccountNumber[loopCounterLocal - 1]- '0'; /* Save the given Luhn number */
 			loopCounterLocal -= 2;                /* Start the Luhn algorithm from the next digit to the luhn number */
 			while (loopCounterLocal >= 0)         /* Loop fron the right side to the left side so at the end the counter will be negative */
 			{
@@ -179,7 +179,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 					loopCounterLocal --;          /* If the loop counter equal to zero that's mean the end */
 				}
 			}
-			sumLocal = 10 - (sumLocal % 10);      /* The final step to calculate the Luhn number is to subtract the mod by 10 of the summation by 10 */
+			sumLocal = (10 - (sumLocal % 10) )% 10;      /* The final step to calculate the Luhn number is to subtract the mod by 10 of the summation by 10 */
 			if (LuhnNumberLocal == sumLocal)      /* Check if the givien Luhn number is equal to the calculated one */
 			{
 				retFunc = TERMINAL_OK;            /* Return TERMINAL_OK if true */
@@ -201,39 +201,47 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 	return retFunc;                               /* Return the terminal error state */
 }/* End of isValidCardPAN */
 
-
+/*************************************************************************************************************/
+/* @FuncName : getTransactionDate Function @Written by : Mohamed Mansour                                     */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : get the system date as a transaction date and store it.                            */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully as we always use ths system date            */
+/*************************************************************************************************************/
 
 EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
-
-    time_t t = time(NULL);
-    struct tm tm;
-    tm = *localtime(&t);
-    int year = tm.tm_year + 1900;
+    time_t t = time(NULL);          /*create a time pointer*/
+    struct tm tm;                   /*Structure containing a calendar date and time broken down into its components*/
+    tm = *localtime(&t);            /*use the time pointer to fill the tm struct components*/
+    int year = tm.tm_year + 1900;   /*get tm components*/
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;
-    unsigned int index = 9;
-    strcpy(termData->transactionDate,"00/00/0000");
+    unsigned int index = 9;         /*used to indexing the transactionDate array*/
+    strcpy(termData->transactionDate,"00/00/0000"); /*initial value for the date to be fill */
 
 
-    while(year)
+    while(year)                     /*convert year component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = year%10 + '0';
         year /= 10;
     }
 
-    //termData->transactionDate[index--] =  '0';
-    index = 5;
+    index = 5;                      /*to ensure that all missed elements in the year will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(month)
+    while(month)                    /*convert month component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = month%10 + '0';
         month /= 10;
     }
 
-    index = 2;
+    index = 2;                       /*to ensure that all missed elements in the month will be zeros*/
     termData->transactionDate[index--] = '/';
-    while(day)
+    while(day)                       /*convert day component into string and store it in the terminal struct*/
     {
         termData->transactionDate[index--] = day%10 + '0';
         day /= 10;
@@ -241,14 +249,25 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 
 return TERMINAL_OK;
 }
-
+/*************************************************************************************************************/
+/* @FuncName : isCardExpired Function @Written by : Mohamed Mansour                                          */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : check if the card is expired or working based on system date that recently stored  */
+/* 2- Function Input                                                                                         */
+/*               @param : termData       @ref ST_terminalData_t  struct                                      */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the terminal module                                                 */
+/*                (TERMINAL_OK) : The function done successfully                                             */
+/*                (EXPIRED_CARD): if the card is expired                                                        */
+/*************************************************************************************************************/
 EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
 {
 
-
+    /**convert card expired date into integer values to be compared with the transaction date**/
     int cardMonth = (cardData->cardExpirationDate[0] - '0') * 10 + (cardData->cardExpirationDate[1] - '0');
     int cardYear  = (cardData->cardExpirationDate[3] - '0') * 10 + (cardData->cardExpirationDate[4] - '0');
-    //////////
+    /**convert transaction date into integer values to be compared with the card expired date**/
     int transMonth = (termData->transactionDate[3] - '0') * 10 + (termData->transactionDate[4] - '0');
     int transYear  = (termData->transactionDate[8] - '0') * 10 + (termData->transactionDate[9] - '0');
 

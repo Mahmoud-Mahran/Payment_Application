@@ -150,22 +150,22 @@ void appStart()
             flagProcess = 1;
             //listSavedTransactions();
         }
-        else if (transError == FRAUD_CARD )
+        else if (transError == FRAUD_CARD &&  flagProcess == 1)
         {
             printf("\n Account Does not Exist \n");
             flagProcess = 0;
         }
-        else if (transError == DECLINED_INSUFFECIENT_FUND )
+        else if (transError == DECLINED_INSUFFECIENT_FUND  &&  flagProcess == 1)
         {
             printf("\n Amount is not available \n");
             flagProcess = 0;
         }
-        else if (transError == DECLINED_STOLEN_CARD )
+        else if (transError == DECLINED_STOLEN_CARD &&  flagProcess == 1)
         {
-            printf("\n Account is blocked \n");
+            printf("\n DECLINED_STOLEN_CARD \n");
             flagProcess = 0;
         }
-        else if (transError == INTERNAL_SERVER_ERROR  )
+        else if (transError == INTERNAL_SERVER_ERROR &&  flagProcess == 1 )
         {
             printf("\n  Transaction can't be saved \n");
             flagProcess = 0;

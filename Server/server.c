@@ -240,12 +240,12 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 /*************************************************************************************************************/
 void listSavedTransactions(void)
 {
-    int i = 0;
+   static int i = 0;
     /*      array of state strings to display accoring to the transaction state enum      */
     char Local_charTransStates[5][50] = {"APPROVED", "DECLINED_INSUFFECIENT_FUND", "DECLINED_STOLEN_CARD", "FRAUD_CARD", "INTERNAL_SERVER_ERROR"};
     /*      print all saved (non zero) transactions      */
-    while(transactionsDB[i].transactionSequenceNumber != 0)
-    {
+   // while(transactionsDB[i].transactionSequenceNumber != 0)
+    //{
         printf("#########################\n");
         printf("Transaction Sequence Number: %d\n", transactionsDB[i].transactionSequenceNumber);
         printf("Transaction Date: %s\n", transactionsDB[i].terminalData.transactionDate);
@@ -257,7 +257,7 @@ void listSavedTransactions(void)
         printf("Card Expiration Date: %s\n", transactionsDB[i].cardHolderData.cardExpirationDate);
         printf("#########################\n");
         i++;
-    }
+   // }
 }
 /*************************************************************************************************************/
 /* @FuncName : isAmountAvailable Function  @Written by : Mohamed Yehia El-Greatly                            */

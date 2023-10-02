@@ -16,7 +16,7 @@ void recieveTransactionDataTest(void){
 	//APPROVED
 	strcpy_s(transactions[0].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[0].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
-	strcpy_s(transactions[0].cardHolderData.primaryAccountNumber, 20,  "0605870742237832");
+	strcpy_s(transactions[0].cardHolderData.primaryAccountNumber, 20,  "6821541302248965");
 	transactions[0].terminalData.maxTransAmount = 20000.0;
 	strcpy_s(transactions[0].terminalData.transactionDate, 11, "02/10/2023");
 	transactions[0].terminalData.transAmount = 100.0;
@@ -115,7 +115,7 @@ void isBlockedAccountTest(void){
 	}
 	printf("\##########################\n");
 	printf("Tester Name: Mahmoud Mahran\n");
-	printf("Function Name: isValidAccount\n");
+	printf("Function Name: isBlockedAccount\n");
 	printf("Test Case 2:\n");
 	printf("Input Data: accountReference\n");
 	printf("Expected Result: BLOCKED_ACCOUNT\n");
@@ -220,11 +220,11 @@ void saveTransactionTest(void){
 }
 void listSavedTransactionsTest(void){
 	ST_transaction_t transactions[5] = { 0 };
-
+	ST_transaction_t my_transactionsDB[6] = { 0 };
 	//APPROVED
 	strcpy_s(transactions[0].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[0].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
-	strcpy_s(transactions[0].cardHolderData.primaryAccountNumber, 20, "6388761453882991");
+	strcpy_s(transactions[0].cardHolderData.primaryAccountNumber, 20, "6821541302248965");
 	transactions[0].terminalData.maxTransAmount = 20000;
 	strcpy_s(transactions[0].terminalData.transactionDate, 11, "02/10/2023");
 	transactions[0].terminalData.transAmount = 100;
@@ -233,7 +233,7 @@ void listSavedTransactionsTest(void){
 	//DECLINED_INSUFFECIENT_FUND
 	strcpy_s(transactions[1].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[1].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
-	strcpy_s(transactions[1].cardHolderData.primaryAccountNumber, 20, "67710983163214064");
+	strcpy_s(transactions[1].cardHolderData.primaryAccountNumber, 20, "9293770170676345");
 	transactions[1].terminalData.maxTransAmount = 20000;
 	strcpy_s(transactions[1].terminalData.transactionDate, 11, "16/01/2023");
 	transactions[1].terminalData.transAmount = 15000;
@@ -242,7 +242,7 @@ void listSavedTransactionsTest(void){
 	//DECLINED_STOLEN_CARD
 	strcpy_s(transactions[2].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[2].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
-	strcpy_s(transactions[2].cardHolderData.primaryAccountNumber, 20, "6371701407503227");
+	strcpy_s(transactions[2].cardHolderData.primaryAccountNumber, 20, "4001060271215928");
 	transactions[2].terminalData.maxTransAmount = 20000;
 	strcpy_s(transactions[2].terminalData.transactionDate, 11, "16/01/2023");
 	transactions[2].terminalData.transAmount = 1500;
@@ -289,14 +289,14 @@ void listSavedTransactionsTest(void){
 }
 
 
-/*void main(void){
-	recieveTransactionDataTest();
-	//isValidAccountTest();
-	//isAmountAvailableTest();
-	//isBlockedAccountTest();
-	//saveTransactionTest();
-	//listSavedTransactionsTest();
-}*/
+//void main(void){
+//	//recieveTransactionDataTest();
+//	//isValidAccountTest();
+//	//isAmountAvailableTest();
+//	//isBlockedAccountTest();
+//	saveTransactionTest();
+//	listSavedTransactionsTest();
+//}
 
 
 

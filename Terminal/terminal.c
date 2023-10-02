@@ -53,7 +53,6 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		}
 		else
 		{
-			termData->maxTransAmount = 1000.0;    /* Default of Max transaction amount */
 			retFunc = INVALID_MAX_AMOUNT;         /* If the max amount less or equal to 0 */
 		}
     }
@@ -107,9 +106,9 @@ EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
 /*                (TERMINAL_OK) : Amount is below max amount.                                                */
 /*************************************************************************************************************/
 EN_terminalError_t isBelowMaxAmount(ST_terminalData_t* termData){
-	EN_terminalError_t FuncRet = 0;
+	EN_terminalError_t FuncRet = TERMINAL_OK;
 	/*     check that the amount is below max amount       */
-	if(termData->transAmount <= termData->maxTransAmount ){
+	if(termData->transAmount > termData->maxTransAmount ){
 		/*   error state   */
 		FuncRet = EXCEED_MAX_AMOUNT;
 	} else {
@@ -129,7 +128,7 @@ EN_terminalError_t isBelowMaxAmount(ST_terminalData_t* termData){
 /* 3- Function Return                                                                                        */
 /*               @return Error status of the terminal module                                                 */
 /*                (TERMINAL_OK) : The function done successfully                                             */
-/*                (INVALID_CARD) : Check Luhn digit and If the PAN less than 16 or more than 19 number       */
+/*                (INVALID_MAX_AMOUNT) : if the max amount less than (negative number) or equal to 0         */
 /*                (TERMINAL_DATA_NOK) : If the terminal data pointer point to NULL                           */
 /*************************************************************************************************************/
 EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
@@ -144,7 +143,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		while (cardData->primaryAccountNumber[loopCounterLocal] != CHAR_NULL) /* This loop to count the number of PAN */
 		{
 			loopCounterLocal++;
-			if (loopCounterLocal == MAX_PAN+1)    /* Check if this string doesn't have NULL character */
+			if (loopCounterLocal == 20 )    /* Check if this string doesn't have NULL character */
 			{
 				break;                            /* Break to prevent the infinity loop */
 			}
@@ -155,7 +154,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 		}
 		if (loopCounterLocal >= MIN_PAN && loopCounterLocal <= MAX_PAN) /* PAN range between 16 & 19 numbers */
 		{
-			LuhnNumberLocal = cardData->primaryAccountNumber[loopCounterLocal - 1]; /* Save the given Luhn number */
+			LuhnNumberLocal = cardData->primaryAccountNumber[loopCounterLocal - 1]- '0'; /* Save the given Luhn number */
 			loopCounterLocal -= 2;                /* Start the Luhn algorithm from the next digit to the luhn number */
 			while (loopCounterLocal >= 0)         /* Loop fron the right side to the left side so at the end the counter will be negative */
 			{
@@ -180,7 +179,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 					loopCounterLocal --;          /* If the loop counter equal to zero that's mean the end */
 				}
 			}
-			sumLocal = 10 - (sumLocal % 10);      /* The final step to calculate the Luhn number is to subtract the mod by 10 of the summation by 10 */
+			sumLocal = (10 - (sumLocal % 10) )% 10;      /* The final step to calculate the Luhn number is to subtract the mod by 10 of the summation by 10 */
 			if (LuhnNumberLocal == sumLocal)      /* Check if the givien Luhn number is equal to the calculated one */
 			{
 				retFunc = TERMINAL_OK;            /* Return TERMINAL_OK if true */
@@ -260,7 +259,7 @@ return TERMINAL_OK;
 /* 3- Function Return                                                                                        */
 /*               @return Error status of the terminal module                                                 */
 /*                (TERMINAL_OK) : The function done successfully                                             */
-/*                (EXPIRED_CARD): if the card is expired                                                     */
+/*                (EXPIRED_CARD): if the card is expired                                                        */
 /*************************************************************************************************************/
 EN_terminalError_t isCardExpired(ST_cardData_t* cardData, ST_terminalData_t* termData)
 {

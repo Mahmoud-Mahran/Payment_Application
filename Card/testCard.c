@@ -33,9 +33,9 @@ void getCardHolderNameTest(void)
     FILE*  expectedResultsFile ;    /*Expected results file pointer */
     ST_cardData_t testCard = {"","", ""};
     char expectedResultBuffer[TEST_BUFFER_LENGTH];
-    fopen_s(&testFile, "test_name.txt", "r");    /*opens testName file */
+    testFile = fopen("test_name.txt", "r");    /*opens testName file */
 
-    fopen_s(&expectedResultsFile, "Expected.txt","r"); /*opens Expected results file */
+    expectedResultsFile = fopen("Expected.txt","r"); /*opens Expected results file */
     int i = 0;
     printf("Tester Name : mohamed mansour \nFunction Name: getCardHolderName \n");
     while(i < NUMBER_OF_TEST_CASES)
@@ -75,9 +75,9 @@ void getCardExpiryDateTest(void)
     FILE* testExpiryDateFile;
     FILE* ecpectedExpiryDateResultsFile;
     ST_cardData_t testCard = {"","",""};
-    fopen_s(&testExpiryDateFile, "cards.txt","r");
+    testExpiryDateFile =  fopen("cards.txt","r");
     cards =testExpiryDateFile ;
-    fopen_s(&ecpectedExpiryDateResultsFile, "Expected_ExpiryDate.txt","r");
+    ecpectedExpiryDateResultsFile =  fopen("Expected_ExpiryDate.txt","r");
     char i = 0;
     unsigned char count = 0;
     char loopCounterLocal=0;
@@ -136,8 +136,8 @@ void getCardPANTest(void)
     FILE* ecpectedPanResultsFile;
     enum EN_cardError_t error ;
     ST_cardData_t testCard = {"","",""};
-    fopen_s(&testPanFile, "cards.txt","r");
-    fopen_s(&ecpectedPanResultsFile, "Expected_pan.txt","r");
+    testPanFile =  fopen("cards.txt","r");
+    ecpectedPanResultsFile =  fopen("Expected_pan.txt","r");
     char i = 0;
     unsigned char count = 0;
     char loopCounterLocal=0;

@@ -27,7 +27,7 @@ void appStart()
 
     ST_transaction_t transaction={card,terminal,0,0};
     EN_transState_t transError = -1 ;
-    int flagProcess = 0;    /*used to start the process if = 1 then start the process*/
+    unsigned char flagProcess = 0;    /*used to start the process if = 1 then start the process*/
     //printf("Enter 1 to Start the Process: ");
     /////////////////////////////////////////////////////////////////////////////////////
     /**Set the Max Amount of the terminal**/
@@ -150,22 +150,22 @@ void appStart()
             flagProcess = 1;
             //listSavedTransactions();
         }
-        else if (transError == FRAUD_CARD )
+        else if (transError == FRAUD_CARD &&  flagProcess == 1)
         {
             printf("\n Account Does not Exist \n");
             flagProcess = 0;
         }
-        else if (transError == DECLINED_INSUFFECIENT_FUND )
+        else if (transError == DECLINED_INSUFFECIENT_FUND  &&  flagProcess == 1)
         {
             printf("\n Amount is not available \n");
             flagProcess = 0;
         }
-        else if (transError == DECLINED_STOLEN_CARD )
+        else if (transError == DECLINED_STOLEN_CARD &&  flagProcess == 1)
         {
-            printf("\n Account is blocked \n");
+            printf("\n DECLINED_STOLEN_CARD \n");
             flagProcess = 0;
         }
-        else if (transError == INTERNAL_SERVER_ERROR  )
+        else if (transError == INTERNAL_SERVER_ERROR &&  flagProcess == 1 )
         {
             printf("\n  Transaction can't be saved \n");
             flagProcess = 0;
@@ -173,7 +173,7 @@ void appStart()
         flagProcess = 0;
         printf("****************End Process**************\n");
         printf("To continue press 1 to stop press 0 : " );
-        scanf_s(" %i",&flagProcess);
+        scanf(" %d",&flagProcess);
 
         if(flagProcess == 0)
         {

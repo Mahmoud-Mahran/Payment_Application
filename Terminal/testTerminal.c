@@ -57,7 +57,7 @@ void getTransactionAmountTest(void)
 	printf("Test Case : old transaction amount %f , should update from user input  \n", termData.transAmount);
 	printf("Expected Result : ( 0 mean TERMINAL_OK and 4 mean INVALID_AMOUNT ) , related to user input");
 	printf("Actual Result : %d \n", result);
-	printf("New date : %s \n", termData.transAmount);
+	printf("New date : %f \n", termData.transAmount);
 
 }
 
@@ -124,4 +124,13 @@ void isValidCardPANTest(void)
 }
 
 
+
+//void main(void)
+//{
+//	getTransactionDateTest();
+//	isCardExpriedTest();
+//	isBelowMaxAmountTest();
+//	setMaxAmountTest();
+//	isValidCardPANTest();
+//}
 

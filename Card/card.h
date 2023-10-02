@@ -31,7 +31,7 @@ char buffer[BUFFER_LENGTH];
 char testBuffer[50];
 typedef struct ST_cardData_t
 {
-    unsigned char cardHolderName[25];
+    unsigned char  cardHolderName[25];
     unsigned char  primaryAccountNumber[20];
     unsigned char  cardExpirationDate[6];
 }ST_cardData_t;

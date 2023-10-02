@@ -35,7 +35,6 @@
 #ifndef TERMINAL_H_
 #define TERMINAL_H_
 #include "../Card/card.h"
-#include <stdint.h>
 /*************************************************************************************************************/
 /*                                       Define New Data Type                                                */
 /*************************************************************************************************************/
@@ -43,7 +42,7 @@ typedef struct ST_terminalData_t
 {
 	float transAmount;
 	float maxTransAmount;
-	uint8_t transactionDate[11];
+	unsigned char  transactionDate[11];
 }ST_terminalData_t;
 /*************************************************************************************************************/
 /*                                       Define New ERROR STATE                                              */

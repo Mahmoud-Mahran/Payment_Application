@@ -22,9 +22,10 @@
 #define BUFFER_LENGTH                200
 #define	CHAR_NULL	              ( '\0' )
 #define SERVER_DATA_NOK              -1
+#define MAX_TRANSACTIONS              4
 /*##########################################TRANSACTIONS DB#################################################*/
 ST_transaction_t transactionsDB[255] = {0};
-static unsigned char limitOfTransaction = 255;
+static unsigned char limitOfTransaction = MAX_TRANSACTIONS;
 static fpos_t db_pos;
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
@@ -48,13 +49,14 @@ static fpos_t db_pos;
 EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 	EN_transState_t FuncRet = 0;
 	/*     temp account reference to get the account info in        */
-	ST_accountsDB_t Local_uddtAccountReference;
+	static ST_accountsDB_t Local_uddtAccountReference = {0.0, -1, " "};
 	/*     check that the account exists        */
 	if(isValidAccount(&transData->cardHolderData, &Local_uddtAccountReference) != ACCOUNT_NOT_FOUND){
 		/*     check that amount is available        */
-		if(isAmountAvailable(&transData->terminalData, &Local_uddtAccountReference) != LOW_BALANCE){
+		if(isBlockedAccount(&Local_uddtAccountReference) != BLOCKED_ACCOUNT)
+		{
 			/*     check that the account is running        */
-			if(isBlockedAccount(&Local_uddtAccountReference) != BLOCKED_ACCOUNT){
+			if(isAmountAvailable(&transData->terminalData, &Local_uddtAccountReference) != LOW_BALANCE){
 				if(limitOfTransaction > 0){
 					/*            update balance           */
 					Local_uddtAccountReference.balance -= transData->terminalData.transAmount;
@@ -62,43 +64,45 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 					FILE *accounts_fptr;
 	                /*      open file      */
 	                fopen_s(&accounts_fptr, "Server\\accountsDB.txt", "r");
-					fsetpos(accounts_fptr, &db_pos);
+					//fsetpos(accounts_fptr, &db_pos);
 					/*      buffer to store the line to write to the file      */
 		            char Local_charBuffer[BUFFER_LENGTH] = {0};
 					/*      format the line to write to the file      */
-					sprintf(Local_charBuffer, "%f,%d,\"%s\"", Local_uddtAccountReference.balance, Local_uddtAccountReference.state, Local_uddtAccountReference.primaryAccountNumber);
+					sprintf_s(Local_charBuffer, 100, "%f,%d,%s", Local_uddtAccountReference.balance, Local_uddtAccountReference.state, Local_uddtAccountReference.primaryAccountNumber);
 					/*      write to  file      */
 					fputs(Local_charBuffer, accounts_fptr);
 				    /*         update transaction state       */
 				    transData->transState = APPROVED;
 				    /*         error state                    */
-				    FuncRet = SERVER_OK;
+				    FuncRet = APPROVED;
 					fclose(accounts_fptr);
 				} else {
 					transData->transState =  INTERNAL_SERVER_ERROR;
 		            /*         error state                    */
-		            FuncRet = SAVING_FAILED;
+		            FuncRet = INTERNAL_SERVER_ERROR;
 				}
 			} else {
 				/*         update transaction state       */
-				transData->transState = DECLINED_STOLEN_CARD;
+				transData->transState = DECLINED_INSUFFECIENT_FUND;
 				/*         error state                    */
-				FuncRet = BLOCKED_ACCOUNT;
+				FuncRet = DECLINED_INSUFFECIENT_FUND;
 			}
 		} else {
 			/*         update transaction state       */
-			transData->transState = DECLINED_INSUFFECIENT_FUND;
+			transData->transState = DECLINED_STOLEN_CARD;
 			/*         error state                    */
-			FuncRet = LOW_BALANCE;
+			FuncRet = DECLINED_STOLEN_CARD;
 		}
 	} else {
 		/*         update transaction state       */
 		transData->transState =  FRAUD_CARD;
 		/*         error state                    */
-		FuncRet = ACCOUNT_NOT_FOUND;
+		FuncRet = FRAUD_CARD;
 	}
-	saveTransaction(transData);
-	return FuncRet;
+	if (saveTransaction(transData) == SAVING_FAILED) {
+		FuncRet = INTERNAL_SERVER_ERROR;
+	
+	}	return FuncRet;
 }
 /*************************************************************************************************************/
 /* @FuncName : isValidAccount Function                           @Written by : Mahmoud Mahran                */
@@ -114,8 +118,9 @@ EN_transState_t recieveTransactionData(ST_transaction_t *transData){
 /*                (SERVER_OK) : PAN exists in db.                                                            */
 /*************************************************************************************************************/
 EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accountRefrence){
+	ST_accountsDB_t* account = accountRefrence;
 	/*      return state      */
-	EN_serverError_t FuncRet = 0;
+	EN_serverError_t FuncRet = SERVER_OK;
 	/*      database file pointer      */
 	FILE *accounts_fptr;
 	/*      open file      */
@@ -134,25 +139,33 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 		char Local_charTempBuff[BUFFER_LENGTH] = {0};
 		uint8_t Local_u8ComaCounter;
 		/*       loop through the accounts db       */
-		for(int i = 0; i < 10; i++){
+		int i = 0;
+		int k = 0;
+		int j = 0;
+		for(i = 0; i < 10; i++)
+		{
 			fgetpos(accounts_fptr, &db_pos);
 			/*      read line from file      */
 			fgets(Local_charBuffer, BUFFER_LENGTH, accounts_fptr);
+			int num = strlen(Local_charBuffer);
 			Local_u8ComaCounter = 0;
 			/*      loop throgh the line to parse DB vars     */
-			for(int k = 0; k < strlen(Local_charBuffer); k++){
+			for(k= 0; k < num; k++)
+			{
 				/*      reached 1st coma      */
-				if(Local_u8ComaCounter == 1){
+				if(Local_u8ComaCounter == 1)
+				{
 					/*      copy the balance string to a temp buffer      */
-					for(int j = 0; j < (k - 1); j++){
+					for(j = 0; j < (k - 1); j++)
+					{
 						Local_charTempBuff[j] = Local_charBuffer[j];
 					}
 					/*     get account state      */
-					Local_charState = Local_charBuffer[k-1];
+					Local_charState = Local_charBuffer[k-1] - '0';
 				}
 				/*      copy PAN      */
 				if(Local_charBuffer[k] == '"'){
-					strcpy_s(Local_charPAN, strlen(&Local_charBuffer[k]), Local_charBuffer);
+					strcpy_s(Local_charPAN, BUFFER_LENGTH, &Local_charBuffer[k+1]);
 					/*      remove '"' from end of PAN and replace it with a null char     */
 					Local_charPAN[strlen(Local_charPAN)-2] = '\0';
 					break;
@@ -161,18 +174,21 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 				if(Local_charBuffer[k] == ',') Local_u8ComaCounter++;
 			}
 			/*      get the account balance by converting the temp buffer to float      */
-			Local_floatBalance = atof(Local_charTempBuff);
+			Local_floatBalance = (float)atof(Local_charTempBuff);
 			/*       check for a matching pan number      */
-			if(strcmp(cardData->primaryAccountNumber, Local_charPAN) == 0){
+			accountRefrence = account;
+			if(strcmp(cardData->primaryAccountNumber, Local_charPAN) == 0)
+			{			
 				/*      store account data in the reference if the account was found */
 				accountRefrence->balance = Local_floatBalance;
 				accountRefrence->state = Local_charState;
-				strcpy_s(accountRefrence->primaryAccountNumber, strlen(Local_charPAN), Local_charPAN);
+				strcpy_s(accountRefrence->primaryAccountNumber, strlen(Local_charPAN)+1, Local_charPAN);
 				/*      error state      */
 				FuncRet =  SERVER_OK;
 				/*        break from the loop if the pan was found in the DB          */
 				break;
 			} else {
+				accountRefrence = NULL;
 				/*      error state      */
 				FuncRet =  ACCOUNT_NOT_FOUND;
 			}
@@ -197,15 +213,15 @@ EN_serverError_t isValidAccount(ST_cardData_t *cardData, ST_accountsDB_t *accoun
 void listSavedTransactions(void){
 	int i = 0;
 	/*      array of state strings to display accoring to the transaction state enum      */
-	char Local_charTransStates[5][] = {"APPROVED", "DECLINED_INSUFFECIENT_FUND", "DECLINED_STOLEN_CARD", "FRAUD_CARD", "INTERNAL_SERVER_ERROR"};
+	char Local_charTransStates[5][50] = {"APPROVED", "DECLINED_INSUFFECIENT_FUND", "DECLINED_STOLEN_CARD", "FRAUD_CARD", "INTERNAL_SERVER_ERROR"};
 	/*      print all saved (non zero) transactions      */
-	while(transactionsDB[i] != 0){
+	while(transactionsDB[i].transactionSequenceNumber != 0){
 		printf("#########################\n");
 		printf("Transaction Sequence Number: %d\n", transactionsDB[i].transactionSequenceNumber);
 		printf("Transaction Date: %s\n", transactionsDB[i].terminalData.transactionDate);
 		printf("Transaction Amount: %f\n", transactionsDB[i].terminalData.transAmount);
 		printf("Transaction State: %s\n", Local_charTransStates[transactionsDB[i].transState]);
-		printf("Terminal Max Amount: %d\n", transactionsDB[i].terminalData.maxTransAmount);
+		printf("Terminal Max Amount: %f\n", transactionsDB[i].terminalData.maxTransAmount);
 		printf("Cardholder Name: %s\n", transactionsDB[i].cardHolderData.cardHolderName);
 		printf("PAN: %s\n", transactionsDB[i].cardHolderData.primaryAccountNumber);
 		printf("Card Expiration Date: %s\n", transactionsDB[i].cardHolderData.cardExpirationDate);
@@ -266,20 +282,20 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData, ST_accountsDB_t*
 EN_serverError_t saveTransaction(ST_transaction_t * transData)
 {
 	EN_terminalError_t retFunc = SERVER_OK;     /* Initialize the function return by the server error state */
-	char indexlocal = 255 - limitOfTransaction;
+	char indexlocal = MAX_TRANSACTIONS - limitOfTransaction;
 	if (transData != NULL)
 	{
 		if (limitOfTransaction > 0)
 		{
 			limitOfTransaction--;
 			/* Store transaction Sequence Number */
-			transactionsDB[indexlocal]->transactionSequenceNumber = indexlocal + 1 ;
+			transactionsDB[indexlocal].transactionSequenceNumber = indexlocal + 1 ;
 			/* Store cardHolder Data */
-			transactionsDB[indexlocal]->cardHolderData = transData->cardHolderData;
+			transactionsDB[indexlocal].cardHolderData = transData->cardHolderData;
 			/* Store transaction State */
-			transactionsDB[indexlocal]->transState = transData->transState;
+			transactionsDB[indexlocal].transState = transData->transState;
 			/* Store transaction Date */
-			transactionsDB[indexlocal]->terminalData = transData->terminalData;
+			transactionsDB[indexlocal].terminalData = transData->terminalData;
 		}
 		else
 		{
@@ -290,6 +306,7 @@ EN_serverError_t saveTransaction(ST_transaction_t * transData)
 	{
 		retFunc = SERVER_DATA_NOK;
 	}
+	//listSavedTransactions();
 	return retFunc;                             /* Return the server error state */
 }
 /*************************************************************************************************************/

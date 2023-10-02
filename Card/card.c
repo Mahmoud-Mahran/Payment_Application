@@ -16,7 +16,6 @@
 #define	CHAR_NULL	              ( '\0' )
 #define CARD_DATA_NOK                -1
 #define TEST_CARD_HOLDER_NAME         0
-
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -49,7 +48,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 		for(int i = 0; i < strlen(Local_charBuffer); i++){
 			/*        copy any chars after the second coma        */
 			if(Local_u8ComaCounter == 2){
-				strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
+				strcpy_s(Local_charBufferExpiry,strlen(&Local_charBuffer[i]), &Local_charBuffer[i]);
 				Local_charBufferExpiry[(strlen(Local_charBufferExpiry)-2)] = '\0';
 				break;
 			}
@@ -72,7 +71,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 			}
 			if(FuncRet != WRONG_EXP_DATE){
 				/*        store input in cardData if all checks are passed safely and return card ok        */
-				strcpy(cardData->cardExpirationDate, Local_charBufferExpiry);
+				strcpy_s(cardData->cardExpirationDate, strlen (Local_charBufferExpiry), Local_charBufferExpiry);
 				FuncRet =  CARD_OK;
 			}
 		}
@@ -142,21 +141,6 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
 
     return retFunc;                           /* Return the card error state */
 }
-/*************************************************************************************************************/
-
-
-/*************************************************************************************************************/
-/* @FuncName : getCardHolderName Function  @Written by : Mohamed Mansour                                     */
-/*************************************************************************************************************/
-/* 1- Function Description                                                                                   */
-/*               @brief : Takes the the card Holder Name and check it if matches the requires                */
-/*                        Stores it into card data                                                           */
-/* 2- Function Input                                                                                         */
-/*               @param : cardData       @ref ST_cardData_t  struct                                          */
-/* 3- Function Return                                                                                        */
-/*               @return Error status of the card module                                                     */
-/*                (CARD_OK) : The function done successfully                                                 */
-/*                (WRONG_NAME) : If the Name less than 20 or more than 24, If not alpha                      */
 /*************************************************************************************************************/
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 {

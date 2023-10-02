@@ -54,6 +54,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		else
 		{
 			retFunc = INVALID_MAX_AMOUNT;         /* If the max amount less or equal to 0 */
+			termData->maxTransAmount = 5000.0;
 		}
     }
 	else

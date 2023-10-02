@@ -125,12 +125,3 @@ void isValidCardPANTest(void)
 
 
 
-void main(void)
-{
-	getTransactionDateTest();
-	isCardExpriedTest();
-	isBelowMaxAmountTest();
-	setMaxAmountTest();
-	isValidCardPANTest();
-}
-

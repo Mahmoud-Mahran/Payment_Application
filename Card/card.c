@@ -16,6 +16,7 @@
 #define	CHAR_NULL	              ( '\0' )
 #define CARD_DATA_NOK                -1
 #define TEST_CARD_HOLDER_NAME         0
+
 /*###########################################################################################################*/
 /*                                             Functions                                                     */
 /*###########################################################################################################*/
@@ -141,6 +142,21 @@ EN_cardError_t getCardPAN(ST_cardData_t* cardData)
 
     return retFunc;                           /* Return the card error state */
 }
+/*************************************************************************************************************/
+
+
+/*************************************************************************************************************/
+/* @FuncName : getCardHolderName Function  @Written by : Mohamed Mansour                                     */
+/*************************************************************************************************************/
+/* 1- Function Description                                                                                   */
+/*               @brief : Takes the the card Holder Name and check it if matches the requires                */
+/*                        Stores it into card data                                                           */
+/* 2- Function Input                                                                                         */
+/*               @param : cardData       @ref ST_cardData_t  struct                                          */
+/* 3- Function Return                                                                                        */
+/*               @return Error status of the card module                                                     */
+/*                (CARD_OK) : The function done successfully                                                 */
+/*                (WRONG_NAME) : If the Name less than 20 or more than 24, If not alpha                      */
 /*************************************************************************************************************/
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 {

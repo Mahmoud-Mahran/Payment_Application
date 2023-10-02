@@ -5,14 +5,14 @@
 
 
 /*************************************************************************************************************/
-/* @FuncName : appStart Function @Written by : Mohamed Mansour                                          */
+/* @FuncName : appStart Function @Written by : Mohamed Mansour  and Mohamed Yehia El-Greatly                 */
 /*************************************************************************************************************/
 /* 1- Function Description                                                                                   */
-/*               @brief : used to stert the whole process simulated as the terminal device is turned on      */
+/*               @brief : used to start the whole process simulated as the terminal device and server        */
 /* 2- Function Input                                                                                         */
-/*               Void                                     */
+/*               Void                                                                                        */
 /* 3- Function Return                                                                                        */
-/*               Void
+/*               Void                                                                                        */
 /*************************************************************************************************************/
 void appStart()
 {

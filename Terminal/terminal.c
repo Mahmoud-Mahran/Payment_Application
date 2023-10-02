@@ -54,6 +54,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 		else
 		{
 			retFunc = INVALID_MAX_AMOUNT;         /* If the max amount less or equal to 0 */
+			termData->maxTransAmount = 5000.0;
 		}
     }
 	else
@@ -77,11 +78,12 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t* termData, float maxAmount)
 /*************************************************************************************************************/
 EN_terminalError_t getTransactionAmount(ST_terminalData_t* termData){
 	/*       error state      */
-	EN_terminalError_t FuncRet = 0;
+	EN_terminalError_t FuncRet = TERMINAL_OK ;
 	/*     the input transaction amount         */
-	float Local_floatTransAmount = 0;
+	float Local_floatTransAmount = 0.0;
 	/*         get input from user              */
-	scanf_s("%f", Local_floatTransAmount);
+	printf("Enter the transaction amount: ");
+	scanf_s("%f", &Local_floatTransAmount);
 	/*     check that the amount is valid       */
 	if(Local_floatTransAmount <= 0 ){
 		/*   error state   */
@@ -158,7 +160,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 			loopCounterLocal -= 2;                /* Start the Luhn algorithm from the next digit to the luhn number */
 			while (loopCounterLocal >= 0)         /* Loop fron the right side to the left side so at the end the counter will be negative */
 			{
-				tempLocal = cardData->primaryAccountNumber[loopCounterLocal] * 2; /* The first digit next the given Luhn digit is the even digit (every even digit multibly by 2)*/
+				tempLocal = ( cardData->primaryAccountNumber[loopCounterLocal] - '0') * 2; /* The first digit next the given Luhn digit is the even digit (every even digit multibly by 2)*/
 				if (tempLocal >= 10)              /* After multibly by 2 if the result more than or equal to 10 */
 				{
 					tempLocal = 1 + (tempLocal % 10); /* Add the digit 1 + the next digit */
@@ -171,7 +173,7 @@ EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 				if ( (loopCounterLocal-1) >= 0)   /* The next digit to the even one is odd, Check if the loop counter still positive */
 				{
 					loopCounterLocal--;           /* Move to the odd digit */
-					sumLocal = sumLocal + cardData->primaryAccountNumber[loopCounterLocal]; /* Add the odd to the past result */
+					sumLocal = sumLocal + ( cardData->primaryAccountNumber[loopCounterLocal] - '0' ); /* Add the odd to the past result */
 					loopCounterLocal--;           /* Move to the next */
 				}
 				else
@@ -217,7 +219,7 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
     time_t t = time(NULL);          /*create a time pointer*/
     struct tm tm;                   /*Structure containing a calendar date and time broken down into its components*/
-    localtime_s(&tm, &t);          /*use the time pointer to fill the tm struct components*/
+    tm = *localtime(&t);            /*use the time pointer to fill the tm struct components*/
     int year = tm.tm_year + 1900;   /*get tm components*/
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;

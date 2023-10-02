@@ -36,7 +36,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 {
 	/*      counter for comas      */
 	uint8_t Local_u8ComaCounter = 0;
-	EN_cardError_t FuncRet;
+	EN_cardError_t FuncRet = 0;
 	if (cards != NULL){
             Local_u8ComaCounter = 0;
 		/*        buffer to store user input        */
@@ -48,7 +48,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 		for(int i = 0; i < strlen(Local_charBuffer); i++){
 			/*        copy any chars after the second coma        */
 			if(Local_u8ComaCounter == 2){
-				strcpy(Local_charBufferExpiry, &Local_charBuffer[i]);
+				strcpy_s(Local_charBufferExpiry, strlen(&Local_charBuffer[i])+1, &Local_charBuffer[i]);
 				Local_charBufferExpiry[(strlen(Local_charBufferExpiry)-2)] = '\0';
 				break;
 			}
@@ -71,7 +71,7 @@ EN_cardError_t getCardExpiryDate(ST_cardData_t* cardData)
 			}
 			if(FuncRet != WRONG_EXP_DATE){
 				/*        store input in cardData if all checks are passed safely and return card ok        */
-				strcpy(cardData->cardExpirationDate, Local_charBufferExpiry);
+				strcpy_s(cardData->cardExpirationDate, strlen(Local_charBufferExpiry)+1, Local_charBufferExpiry);
 				FuncRet =  CARD_OK;
 			}
 		}

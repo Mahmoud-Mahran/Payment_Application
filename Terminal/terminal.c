@@ -219,7 +219,7 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t* termData)
 {
     time_t t = time(NULL);          /*create a time pointer*/
     struct tm tm;                   /*Structure containing a calendar date and time broken down into its components*/
-    tm = *localtime(&t);            /*use the time pointer to fill the tm struct components*/
+    localtime_s(&tm, &t);            /*use the time pointer to fill the tm struct components*/
     int year = tm.tm_year + 1900;   /*get tm components*/
     int month = tm.tm_mon + 1;
     int day = tm.tm_mday;

@@ -17,7 +17,7 @@
 /*************************************************************************************************************/
 void getTransactionDateTest(void)
 {
-	ST_terminalData_t termData = { 0,0,"1/12/2022" };
+	ST_terminalData_t termData = {0,0,"1/12/2022" };
 	printf("Tester Name : Mohamed Yehia \n");
 	printf("Function Name : getTransactionDate \n");
 	printf("Input Data : ST_terminalData_t termData \n");
@@ -49,7 +49,8 @@ void isCardExpriedTest(void)
 }
 void getTransactionAmountTest(void)
 {
-	ST_terminalData_t termData = { 500.0,0,0 };
+
+	ST_terminalData_t termData = { 0,500.0,0 };
 	EN_terminalError_t result = getTransactionAmount(&termData);
 	printf("Tester Name : Mohamed Yehia \n");
 	printf("Function Name : getTransactionAmount \n");
@@ -57,7 +58,7 @@ void getTransactionAmountTest(void)
 	printf("Test Case : old transaction amount %f , should update from user input  \n", termData.transAmount);
 	printf("Expected Result : ( 0 mean TERMINAL_OK and 4 mean INVALID_AMOUNT ) , related to user input");
 	printf("Actual Result : %d \n", result);
-	printf("New date : %f \n", termData.transAmount);
+	printf("New date : %s \n", termData.transAmount);
 
 }
 
@@ -125,12 +126,6 @@ void isValidCardPANTest(void)
 
 
 
-//void main(void)
-//{
-//	getTransactionDateTest();
-//	isCardExpriedTest();
-//	isBelowMaxAmountTest();
-//	setMaxAmountTest();
-//	isValidCardPANTest();
-//}
+
+
 

@@ -40,7 +40,7 @@ void recieveTransactionDataTest(void){
 	transactions[2].terminalData.transAmount = 1500.0;
 	transactions[2].transState = 0;
 	transactions[2].transactionSequenceNumber = 7;
-	//FRAUD_CARD 
+	//FRAUD_CARD
 	strcpy_s(transactions[3].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[3].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
 	strcpy_s(transactions[3].cardHolderData.primaryAccountNumber, 20, "5847596847589658");
@@ -68,7 +68,7 @@ void recieveTransactionDataTest(void){
 		printf("Expected Result: %s\n", transaction_errors[i]);
 		printf("Actual Result: %s\n", transaction_errors[recieveTransactionData(&transactions[i])]);
 		printf("\##########################\n");
-	}	
+	}
 }
 void isValidAccountTest(void){
 	ST_cardData_t testCard1 = { "Mahmoud Ahmed Mohamed", "6821541302248965", "05/29"};
@@ -101,7 +101,7 @@ void isValidAccountTest(void){
 void isBlockedAccountTest(void){
 	ST_accountsDB_t accRefrence1 = {10000.0, RUNNING, "5847596847589658"};
 	ST_accountsDB_t accRefrence2 = {10000.0, BLOCKED, "5847596847589658"};
-	
+
 	printf("\##########################\n");
 	printf("Tester Name: Mahmoud Mahran\n");
 	printf("Function Name: isBlockedAccount \n");
@@ -189,7 +189,7 @@ void saveTransactionTest(void){
 	transactions[2].terminalData.transAmount = 1500;
 	transactions[2].transState = DECLINED_STOLEN_CARD;
 	transactions[2].transactionSequenceNumber = 7;
-	//FRAUD_CARD 
+	//FRAUD_CARD
 	strcpy_s(transactions[3].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[3].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
 	strcpy_s(transactions[3].cardHolderData.primaryAccountNumber, 20, "5847596847589658");
@@ -248,7 +248,7 @@ void listSavedTransactionsTest(void){
 	transactions[2].terminalData.transAmount = 1500;
 	transactions[2].transState = 0;
 	transactions[2].transactionSequenceNumber = 7;
-	//FRAUD_CARD 
+	//FRAUD_CARD
 	strcpy_s(transactions[3].cardHolderData.cardExpirationDate, 6, "05/25");
 	strcpy_s(transactions[3].cardHolderData.cardHolderName, 25, "Mahmoud Ahmed Mohamed");
 	strcpy_s(transactions[3].cardHolderData.primaryAccountNumber, 20, "5847596847589658");
@@ -289,14 +289,14 @@ void listSavedTransactionsTest(void){
 }
 
 
-void main(void){
+/*void main(void){
 	recieveTransactionDataTest();
 	//isValidAccountTest();
 	//isAmountAvailableTest();
 	//isBlockedAccountTest();
 	//saveTransactionTest();
 	//listSavedTransactionsTest();
-}
+}*/
 
 
 
